@@ -12,7 +12,7 @@ from langchain.llms import FakeListLLM
 # ---------------------
 student_df = pd.read_csv("student_risk_predictions.csv")
 mapping_df = pd.read_csv("advisor_student_mapping.csv")
-degree_df = pd.read_csv("degree_progress.csv")
+degree_df = pd.read_csv("degree_progress_500.csv")
 
 # Convert student_id to string for merging
 student_df["student_id"] = student_df["student_id"].astype(str)
