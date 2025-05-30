@@ -1,0 +1,501 @@
+Student ID,Name,Program,Required Credit,Completed Credit,Progress Percentage,Expected Progress,Schedule Status,Risk Level
+S0001,Student 1,ECE,130,85,65.38,93.33,Advanced,Medium
+S0002,Student 2,IT,130,68,52.31,56.04,Delayed,Medium
+S0003,Student 3,ECE,140,83,59.29,74.32,On Track,Medium
+S0004,Student 4,ECE,130,75,57.69,67.26,Advanced,Medium
+S0005,Student 5,IT,120,79,65.83,95.86,Advanced,Medium
+S0006,Student 6,ECE,140,45,32.14,89.38,Delayed,High
+S0007,Student 7,ME,120,43,35.83,81.61,Delayed,High
+S0008,Student 8,CS,140,132,94.29,97.07,Delayed,Low
+S0009,Student 9,IT,130,119,91.54,90.93,On Track,Low
+S0010,Student 10,CS,120,65,54.17,63.55,Delayed,Medium
+S0011,Student 11,IT,130,82,63.08,50.26,On Track,Medium
+S0012,Student 12,CS,130,123,94.62,61.42,Delayed,Low
+S0013,Student 13,CS,130,102,78.46,89.65,Delayed,Low
+S0014,Student 14,ECE,120,89,74.17,62.73,Delayed,Medium
+S0015,Student 15,ME,140,44,31.43,75.87,Advanced,High
+S0016,Student 16,ME,140,105,75.0,80.14,On Track,Low
+S0017,Student 17,IT,120,111,92.5,60.1,Advanced,Low
+S0018,Student 18,CS,120,56,46.67,96.73,Advanced,High
+S0019,Student 19,IT,130,119,91.54,84.46,Delayed,Low
+S0020,Student 20,ME,130,82,63.08,99.36,On Track,Medium
+S0021,Student 21,CE,140,113,80.71,86.72,Delayed,Low
+S0022,Student 22,CE,140,96,68.57,89.38,On Track,Medium
+S0023,Student 23,CS,140,76,54.29,75.88,Delayed,Medium
+S0024,Student 24,CE,120,108,90.0,98.24,Delayed,Low
+S0025,Student 25,CS,130,52,40.0,93.81,On Track,High
+S0026,Student 26,IT,130,54,41.54,92.32,Delayed,High
+S0027,Student 27,CE,140,87,62.14,77.33,On Track,Medium
+S0028,Student 28,IT,120,42,35.0,64.86,Delayed,High
+S0029,Student 29,ECE,120,40,33.33,65.78,Delayed,High
+S0030,Student 30,ECE,140,98,70.0,81.79,Advanced,Medium
+S0031,Student 31,ME,130,68,52.31,91.03,Advanced,Medium
+S0032,Student 32,CS,120,69,57.5,66.13,Delayed,Medium
+S0033,Student 33,CE,120,47,39.17,69.98,Advanced,High
+S0034,Student 34,CE,120,103,85.83,98.92,Advanced,Low
+S0035,Student 35,ME,120,110,91.67,85.18,On Track,Low
+S0036,Student 36,IT,130,75,57.69,65.86,On Track,Medium
+S0037,Student 37,CE,140,107,76.43,68.07,On Track,Low
+S0038,Student 38,CS,120,50,41.67,56.14,Advanced,High
+S0039,Student 39,IT,140,117,83.57,60.05,Advanced,Low
+S0040,Student 40,ECE,130,53,40.77,58.39,Delayed,High
+S0041,Student 41,CE,120,94,78.33,83.47,Advanced,Low
+S0042,Student 42,IT,140,116,82.86,60.31,Advanced,Low
+S0043,Student 43,ME,120,70,58.33,61.63,Advanced,Medium
+S0044,Student 44,ME,120,98,81.67,56.63,On Track,Low
+S0045,Student 45,CS,120,69,57.5,60.13,Delayed,Medium
+S0046,Student 46,CS,130,130,100.0,77.52,Delayed,Low
+S0047,Student 47,CE,140,99,70.71,81.36,Advanced,Medium
+S0048,Student 48,CS,140,41,29.29,96.49,Advanced,High
+S0049,Student 49,CE,120,96,80.0,60.25,On Track,Low
+S0050,Student 50,IT,130,40,30.77,69.89,Advanced,High
+S0051,Student 51,ECE,140,140,100.0,79.25,Advanced,Low
+S0052,Student 52,CS,140,59,42.14,73.91,Advanced,High
+S0053,Student 53,IT,120,32,26.67,87.13,On Track,High
+S0054,Student 54,CS,120,101,84.17,52.14,On Track,Low
+S0055,Student 55,CE,130,107,82.31,67.94,Delayed,Low
+S0056,Student 56,CS,140,88,62.86,80.55,Delayed,Medium
+S0057,Student 57,CS,140,34,24.29,82.79,On Track,High
+S0058,Student 58,ME,120,84,70.0,70.01,On Track,Medium
+S0059,Student 59,ECE,120,87,72.5,60.92,Delayed,Medium
+S0060,Student 60,CS,140,109,77.86,81.56,On Track,Low
+S0061,Student 61,IT,140,38,27.14,79.19,On Track,High
+S0062,Student 62,ECE,140,48,34.29,52.77,Delayed,High
+S0063,Student 63,CE,130,79,60.77,57.27,Delayed,Medium
+S0064,Student 64,CE,120,31,25.83,54.84,Delayed,High
+S0065,Student 65,ME,120,120,100.0,87.49,Advanced,Low
+S0066,Student 66,ME,130,84,64.62,69.82,Delayed,Medium
+S0067,Student 67,CE,140,35,25.0,87.51,Delayed,High
+S0068,Student 68,IT,130,86,66.15,82.79,Delayed,Medium
+S0069,Student 69,ME,120,102,85.0,59.21,Advanced,Low
+S0070,Student 70,CE,140,70,50.0,54.12,Delayed,Medium
+S0071,Student 71,CE,140,67,47.86,95.4,On Track,High
+S0072,Student 72,ME,140,70,50.0,56.88,Advanced,Medium
+S0073,Student 73,IT,140,83,59.29,87.15,On Track,Medium
+S0074,Student 74,ME,130,57,43.85,64.52,Delayed,High
+S0075,Student 75,IT,130,60,46.15,97.9,On Track,High
+S0076,Student 76,ME,140,88,62.86,86.77,Advanced,Medium
+S0077,Student 77,ECE,130,39,30.0,59.87,Delayed,High
+S0078,Student 78,ECE,140,56,40.0,90.94,On Track,High
+S0079,Student 79,ECE,130,104,80.0,56.18,On Track,Low
+S0080,Student 80,IT,140,73,52.14,94.01,Advanced,Medium
+S0081,Student 81,CS,140,45,32.14,89.79,Advanced,High
+S0082,Student 82,CS,130,69,53.08,96.11,Advanced,Medium
+S0083,Student 83,ME,140,115,82.14,90.76,Delayed,Low
+S0084,Student 84,IT,140,74,52.86,60.19,Advanced,Medium
+S0085,Student 85,ECE,140,115,82.14,97.9,Advanced,Low
+S0086,Student 86,ME,140,45,32.14,98.9,On Track,High
+S0087,Student 87,IT,140,32,22.86,99.08,Delayed,High
+S0088,Student 88,IT,120,82,68.33,66.34,Delayed,Medium
+S0089,Student 89,IT,140,59,42.14,85.26,On Track,High
+S0090,Student 90,IT,140,31,22.14,63.71,Advanced,High
+S0091,Student 91,CE,130,109,83.85,85.58,Delayed,Low
+S0092,Student 92,CE,120,95,79.17,97.11,On Track,Low
+S0093,Student 93,ECE,130,117,90.0,81.26,Advanced,Low
+S0094,Student 94,ME,120,120,100.0,86.6,On Track,Low
+S0095,Student 95,CE,140,30,21.43,89.47,Advanced,High
+S0096,Student 96,ECE,120,30,25.0,65.34,Advanced,High
+S0097,Student 97,CS,130,48,36.92,75.83,Delayed,High
+S0098,Student 98,CE,140,66,47.14,69.34,Advanced,High
+S0099,Student 99,ECE,120,30,25.0,65.69,Delayed,High
+S0100,Student 100,CE,130,32,24.62,89.16,Advanced,High
+S0101,Student 101,CS,130,52,40.0,78.9,Advanced,High
+S0102,Student 102,ME,130,121,93.08,71.4,Delayed,Low
+S0103,Student 103,IT,130,87,66.92,53.8,Delayed,Medium
+S0104,Student 104,CS,130,112,86.15,77.5,Delayed,Low
+S0105,Student 105,ECE,130,82,63.08,52.56,Advanced,Medium
+S0106,Student 106,CS,130,44,33.85,81.81,Advanced,High
+S0107,Student 107,CE,140,73,52.14,84.65,On Track,Medium
+S0108,Student 108,ME,120,83,69.17,64.51,Delayed,Medium
+S0109,Student 109,IT,120,107,89.17,82.05,Delayed,Low
+S0110,Student 110,ECE,140,80,57.14,69.68,Advanced,Medium
+S0111,Student 111,ME,140,125,89.29,60.28,Delayed,Low
+S0112,Student 112,ECE,140,81,57.86,93.61,Delayed,Medium
+S0113,Student 113,ECE,130,97,74.62,60.89,Advanced,Medium
+S0114,Student 114,CE,120,79,65.83,85.04,Advanced,Medium
+S0115,Student 115,ECE,130,30,23.08,77.04,On Track,High
+S0116,Student 116,ECE,130,49,37.69,89.06,Delayed,High
+S0117,Student 117,CE,140,66,47.14,64.78,On Track,High
+S0118,Student 118,ECE,130,41,31.54,54.63,On Track,High
+S0119,Student 119,ECE,140,39,27.86,76.31,Advanced,High
+S0120,Student 120,CS,140,42,30.0,86.78,Delayed,High
+S0121,Student 121,IT,120,85,70.83,76.98,On Track,Medium
+S0122,Student 122,ME,130,107,82.31,78.91,Delayed,Low
+S0123,Student 123,ME,140,58,41.43,56.48,Advanced,High
+S0124,Student 124,ME,130,74,56.92,81.06,On Track,Medium
+S0125,Student 125,ME,140,63,45.0,86.27,Delayed,High
+S0126,Student 126,ME,140,44,31.43,81.63,Advanced,High
+S0127,Student 127,ECE,140,136,97.14,99.41,Delayed,Low
+S0128,Student 128,CS,120,80,66.67,63.22,Delayed,Medium
+S0129,Student 129,CS,130,33,25.38,73.69,On Track,High
+S0130,Student 130,CS,130,51,39.23,74.03,Delayed,High
+S0131,Student 131,CE,130,104,80.0,87.26,Delayed,Low
+S0132,Student 132,IT,130,105,80.77,55.42,Advanced,Low
+S0133,Student 133,CS,130,50,38.46,79.42,Delayed,High
+S0134,Student 134,IT,120,81,67.5,81.45,On Track,Medium
+S0135,Student 135,IT,120,104,86.67,52.48,Advanced,Low
+S0136,Student 136,IT,130,118,90.77,86.28,Delayed,Low
+S0137,Student 137,ECE,120,106,88.33,94.85,Advanced,Low
+S0138,Student 138,CE,140,96,68.57,87.23,Delayed,Medium
+S0139,Student 139,ECE,140,136,97.14,53.49,Delayed,Low
+S0140,Student 140,CS,120,64,53.33,67.56,Delayed,Medium
+S0141,Student 141,ME,120,47,39.17,82.9,On Track,High
+S0142,Student 142,ME,140,94,67.14,65.37,On Track,Medium
+S0143,Student 143,CS,120,115,95.83,68.59,Delayed,Low
+S0144,Student 144,CS,130,117,90.0,96.09,On Track,Low
+S0145,Student 145,CE,120,40,33.33,97.8,Advanced,High
+S0146,Student 146,CS,120,42,35.0,58.08,On Track,High
+S0147,Student 147,ME,140,53,37.86,54.27,Advanced,High
+S0148,Student 148,ME,120,106,88.33,72.29,Advanced,Low
+S0149,Student 149,CE,140,31,22.14,80.65,Advanced,High
+S0150,Student 150,IT,140,123,87.86,92.67,Advanced,Low
+S0151,Student 151,ECE,130,67,51.54,64.91,Delayed,Medium
+S0152,Student 152,IT,120,74,61.67,68.81,Advanced,Medium
+S0153,Student 153,ECE,130,72,55.38,52.91,On Track,Medium
+S0154,Student 154,IT,120,31,25.83,61.36,Advanced,High
+S0155,Student 155,ECE,120,103,85.83,71.88,Advanced,Low
+S0156,Student 156,CS,130,105,80.77,65.64,Delayed,Low
+S0157,Student 157,IT,140,56,40.0,69.78,Advanced,High
+S0158,Student 158,IT,140,118,84.29,62.4,Delayed,Low
+S0159,Student 159,IT,140,49,35.0,73.88,Advanced,High
+S0160,Student 160,IT,120,115,95.83,88.17,On Track,Low
+S0161,Student 161,CE,140,107,76.43,85.78,Delayed,Low
+S0162,Student 162,CE,140,97,69.29,83.59,Advanced,Medium
+S0163,Student 163,ECE,120,46,38.33,86.67,Advanced,High
+S0164,Student 164,IT,120,82,68.33,57.71,On Track,Medium
+S0165,Student 165,CE,140,118,84.29,65.25,Delayed,Low
+S0166,Student 166,CE,130,69,53.08,77.43,On Track,Medium
+S0167,Student 167,CE,130,79,60.77,67.64,Delayed,Medium
+S0168,Student 168,IT,140,51,36.43,51.93,On Track,High
+S0169,Student 169,IT,130,127,97.69,82.27,Advanced,Low
+S0170,Student 170,IT,120,67,55.83,87.09,Delayed,Medium
+S0171,Student 171,CS,140,134,95.71,77.17,Advanced,Low
+S0172,Student 172,CE,140,120,85.71,95.58,Advanced,Low
+S0173,Student 173,CS,140,72,51.43,83.33,Advanced,Medium
+S0174,Student 174,IT,130,81,62.31,70.2,Advanced,Medium
+S0175,Student 175,ECE,120,106,88.33,66.75,Delayed,Low
+S0176,Student 176,IT,120,86,71.67,54.13,On Track,Medium
+S0177,Student 177,CE,120,96,80.0,71.12,Delayed,Low
+S0178,Student 178,CE,130,114,87.69,56.5,Delayed,Low
+S0179,Student 179,IT,120,117,97.5,71.69,On Track,Low
+S0180,Student 180,IT,130,52,40.0,84.56,Delayed,High
+S0181,Student 181,ECE,130,73,56.15,92.34,Advanced,Medium
+S0182,Student 182,CS,140,76,54.29,98.03,Advanced,Medium
+S0183,Student 183,CS,140,35,25.0,81.48,On Track,High
+S0184,Student 184,CE,130,127,97.69,90.63,Advanced,Low
+S0185,Student 185,ECE,120,114,95.0,52.83,Advanced,Low
+S0186,Student 186,IT,120,80,66.67,80.78,Delayed,Medium
+S0187,Student 187,CE,120,74,61.67,89.87,On Track,Medium
+S0188,Student 188,IT,130,57,43.85,51.41,On Track,High
+S0189,Student 189,ECE,120,72,60.0,79.89,Delayed,Medium
+S0190,Student 190,IT,120,36,30.0,77.92,Advanced,High
+S0191,Student 191,IT,120,40,33.33,75.23,Delayed,High
+S0192,Student 192,CE,130,117,90.0,86.97,On Track,Low
+S0193,Student 193,ME,120,120,100.0,70.06,Delayed,Low
+S0194,Student 194,ME,120,83,69.17,63.58,Delayed,Medium
+S0195,Student 195,CS,140,105,75.0,63.2,Delayed,Low
+S0196,Student 196,IT,130,60,46.15,87.05,Advanced,High
+S0197,Student 197,ME,130,69,53.08,72.93,Delayed,Medium
+S0198,Student 198,ME,130,114,87.69,59.41,Delayed,Low
+S0199,Student 199,ECE,130,34,26.15,50.95,On Track,High
+S0200,Student 200,ME,130,110,84.62,84.02,Advanced,Low
+S0201,Student 201,ME,140,134,95.71,53.33,Advanced,Low
+S0202,Student 202,ME,130,35,26.92,52.07,Delayed,High
+S0203,Student 203,ME,130,46,35.38,51.19,Delayed,High
+S0204,Student 204,CS,120,45,37.5,95.26,Delayed,High
+S0205,Student 205,CE,140,138,98.57,82.73,Delayed,Low
+S0206,Student 206,CE,120,119,99.17,57.19,Advanced,Low
+S0207,Student 207,ECE,120,51,42.5,94.33,Advanced,High
+S0208,Student 208,ME,140,135,96.43,62.61,On Track,Low
+S0209,Student 209,ME,140,35,25.0,92.12,Delayed,High
+S0210,Student 210,CE,140,40,28.57,91.18,On Track,High
+S0211,Student 211,ME,130,89,68.46,60.47,On Track,Medium
+S0212,Student 212,ECE,130,98,75.38,57.54,Advanced,Low
+S0213,Student 213,IT,140,58,41.43,70.29,On Track,High
+S0214,Student 214,IT,140,135,96.43,67.78,Advanced,Low
+S0215,Student 215,ECE,120,112,93.33,62.59,On Track,Low
+S0216,Student 216,IT,140,31,22.14,75.37,On Track,High
+S0217,Student 217,ECE,140,68,48.57,94.56,On Track,High
+S0218,Student 218,ECE,130,94,72.31,60.02,Advanced,Medium
+S0219,Student 219,IT,130,32,24.62,84.65,Delayed,High
+S0220,Student 220,ME,130,36,27.69,51.91,Delayed,High
+S0221,Student 221,CE,120,39,32.5,96.04,Advanced,High
+S0222,Student 222,CE,120,46,38.33,68.31,On Track,High
+S0223,Student 223,CE,120,35,29.17,55.88,Delayed,High
+S0224,Student 224,CS,120,58,48.33,78.27,Advanced,High
+S0225,Student 225,ME,140,126,90.0,88.47,On Track,Low
+S0226,Student 226,CS,130,51,39.23,60.16,Delayed,High
+S0227,Student 227,ME,140,127,90.71,52.63,On Track,Low
+S0228,Student 228,CE,140,121,86.43,75.62,On Track,Low
+S0229,Student 229,IT,140,54,38.57,66.12,Delayed,High
+S0230,Student 230,ME,140,76,54.29,63.98,Delayed,Medium
+S0231,Student 231,ECE,140,95,67.86,90.95,Advanced,Medium
+S0232,Student 232,ECE,130,125,96.15,51.42,On Track,Low
+S0233,Student 233,ME,120,96,80.0,98.7,Advanced,Low
+S0234,Student 234,CS,130,77,59.23,61.88,On Track,Medium
+S0235,Student 235,ECE,130,99,76.15,98.24,Delayed,Low
+S0236,Student 236,ECE,130,124,95.38,63.77,On Track,Low
+S0237,Student 237,ECE,130,49,37.69,91.5,Delayed,High
+S0238,Student 238,CE,140,37,26.43,63.06,Advanced,High
+S0239,Student 239,IT,120,57,47.5,58.32,Advanced,High
+S0240,Student 240,CS,140,97,69.29,73.45,Advanced,Medium
+S0241,Student 241,CE,140,79,56.43,76.65,On Track,Medium
+S0242,Student 242,IT,140,125,89.29,84.8,On Track,Low
+S0243,Student 243,ECE,140,52,37.14,95.58,Advanced,High
+S0244,Student 244,ME,120,84,70.0,91.15,Advanced,Medium
+S0245,Student 245,ME,120,116,96.67,63.43,On Track,Low
+S0246,Student 246,ME,130,125,96.15,94.61,Advanced,Low
+S0247,Student 247,ME,140,32,22.86,87.32,Delayed,High
+S0248,Student 248,IT,130,130,100.0,84.92,Advanced,Low
+S0249,Student 249,CE,140,100,71.43,57.3,On Track,Medium
+S0250,Student 250,ECE,140,133,95.0,92.95,Delayed,Low
+S0251,Student 251,ECE,120,62,51.67,98.31,Advanced,Medium
+S0252,Student 252,ME,140,57,40.71,79.76,On Track,High
+S0253,Student 253,CS,130,52,40.0,75.85,Advanced,High
+S0254,Student 254,ECE,130,130,100.0,52.04,On Track,Low
+S0255,Student 255,IT,130,51,39.23,80.37,Delayed,High
+S0256,Student 256,ECE,120,104,86.67,73.54,Advanced,Low
+S0257,Student 257,ME,130,91,70.0,64.6,Advanced,Medium
+S0258,Student 258,ME,140,59,42.14,84.8,On Track,High
+S0259,Student 259,ECE,120,91,75.83,88.32,On Track,Low
+S0260,Student 260,ECE,130,122,93.85,89.24,Advanced,Low
+S0261,Student 261,CS,130,95,73.08,92.06,Advanced,Medium
+S0262,Student 262,IT,140,99,70.71,72.97,On Track,Medium
+S0263,Student 263,IT,140,84,60.0,70.02,Advanced,Medium
+S0264,Student 264,CS,140,70,50.0,83.92,Advanced,Medium
+S0265,Student 265,ECE,140,55,39.29,66.65,On Track,High
+S0266,Student 266,ME,140,117,83.57,50.95,Delayed,Low
+S0267,Student 267,CE,120,46,38.33,94.77,Advanced,High
+S0268,Student 268,CS,130,63,48.46,59.5,On Track,High
+S0269,Student 269,IT,120,66,55.0,70.12,Advanced,Medium
+S0270,Student 270,CS,140,127,90.71,52.75,Delayed,Low
+S0271,Student 271,CE,120,83,69.17,62.96,On Track,Medium
+S0272,Student 272,ECE,120,54,45.0,53.4,On Track,High
+S0273,Student 273,CE,140,134,95.71,53.83,Advanced,Low
+S0274,Student 274,CE,130,94,72.31,89.11,Delayed,Medium
+S0275,Student 275,ME,120,110,91.67,67.58,On Track,Low
+S0276,Student 276,CS,140,108,77.14,64.8,On Track,Low
+S0277,Student 277,CE,120,85,70.83,94.9,Advanced,Medium
+S0278,Student 278,IT,120,37,30.83,69.92,Delayed,High
+S0279,Student 279,CE,130,108,83.08,62.83,Advanced,Low
+S0280,Student 280,IT,140,111,79.29,55.31,Delayed,Low
+S0281,Student 281,ECE,130,33,25.38,57.26,Delayed,High
+S0282,Student 282,CE,120,38,31.67,88.67,On Track,High
+S0283,Student 283,ME,140,92,65.71,90.63,Delayed,Medium
+S0284,Student 284,ECE,130,37,28.46,61.38,Advanced,High
+S0285,Student 285,CS,120,97,80.83,81.45,Delayed,Low
+S0286,Student 286,ME,140,110,78.57,88.14,On Track,Low
+S0287,Student 287,IT,140,82,58.57,86.42,Delayed,Medium
+S0288,Student 288,CS,130,48,36.92,71.8,On Track,High
+S0289,Student 289,CS,120,76,63.33,62.86,Delayed,Medium
+S0290,Student 290,CS,130,39,30.0,87.19,On Track,High
+S0291,Student 291,IT,130,89,68.46,52.85,Advanced,Medium
+S0292,Student 292,IT,120,119,99.17,89.89,Delayed,Low
+S0293,Student 293,IT,140,44,31.43,77.32,On Track,High
+S0294,Student 294,CS,140,39,27.86,58.13,Delayed,High
+S0295,Student 295,IT,120,92,76.67,89.49,Delayed,Low
+S0296,Student 296,CE,130,36,27.69,91.65,Advanced,High
+S0297,Student 297,ECE,130,108,83.08,76.25,On Track,Low
+S0298,Student 298,IT,140,140,100.0,78.02,On Track,Low
+S0299,Student 299,CE,130,126,96.92,90.61,On Track,Low
+S0300,Student 300,CE,130,69,53.08,57.4,On Track,Medium
+S0301,Student 301,IT,130,106,81.54,63.72,On Track,Low
+S0302,Student 302,ME,140,115,82.14,65.75,Delayed,Low
+S0303,Student 303,CE,140,93,66.43,55.22,Delayed,Medium
+S0304,Student 304,IT,130,124,95.38,64.75,Delayed,Low
+S0305,Student 305,IT,130,112,86.15,56.23,Delayed,Low
+S0306,Student 306,ME,120,81,67.5,62.88,Advanced,Medium
+S0307,Student 307,ME,120,82,68.33,73.34,Advanced,Medium
+S0308,Student 308,ME,120,33,27.5,96.65,Delayed,High
+S0309,Student 309,ECE,140,48,34.29,69.85,Delayed,High
+S0310,Student 310,ECE,120,111,92.5,84.32,Delayed,Low
+S0311,Student 311,CE,140,74,52.86,69.68,Delayed,Medium
+S0312,Student 312,IT,140,58,41.43,81.95,On Track,High
+S0313,Student 313,CE,120,60,50.0,64.62,Delayed,Medium
+S0314,Student 314,CE,120,55,45.83,62.52,Advanced,High
+S0315,Student 315,CE,120,53,44.17,66.11,Advanced,High
+S0316,Student 316,ME,140,96,68.57,74.48,Delayed,Medium
+S0317,Student 317,CE,140,84,60.0,61.09,Advanced,Medium
+S0318,Student 318,ECE,130,58,44.62,89.43,On Track,High
+S0319,Student 319,ME,120,41,34.17,82.46,On Track,High
+S0320,Student 320,IT,120,63,52.5,67.32,Delayed,Medium
+S0321,Student 321,ME,130,36,27.69,55.62,On Track,High
+S0322,Student 322,ECE,120,117,97.5,65.37,Advanced,Low
+S0323,Student 323,IT,120,110,91.67,69.73,Advanced,Low
+S0324,Student 324,IT,130,39,30.0,73.17,Delayed,High
+S0325,Student 325,CS,130,37,28.46,91.18,Delayed,High
+S0326,Student 326,ECE,130,125,96.15,95.16,On Track,Low
+S0327,Student 327,ME,130,52,40.0,63.12,Delayed,High
+S0328,Student 328,ECE,130,101,77.69,96.06,Delayed,Low
+S0329,Student 329,CS,120,39,32.5,68.65,On Track,High
+S0330,Student 330,IT,140,106,75.71,60.77,Advanced,Low
+S0331,Student 331,ECE,130,123,94.62,76.83,Advanced,Low
+S0332,Student 332,ME,120,86,71.67,62.86,On Track,Medium
+S0333,Student 333,IT,140,101,72.14,62.68,Advanced,Medium
+S0334,Student 334,CE,140,112,80.0,80.1,On Track,Low
+S0335,Student 335,CS,130,81,62.31,61.98,Delayed,Medium
+S0336,Student 336,IT,140,89,63.57,82.56,Delayed,Medium
+S0337,Student 337,ECE,130,88,67.69,67.6,Advanced,Medium
+S0338,Student 338,IT,120,39,32.5,85.56,On Track,High
+S0339,Student 339,IT,130,96,73.85,83.98,Delayed,Medium
+S0340,Student 340,ECE,130,68,52.31,50.93,On Track,Medium
+S0341,Student 341,CS,140,46,32.86,92.89,Delayed,High
+S0342,Student 342,CS,130,52,40.0,85.9,On Track,High
+S0343,Student 343,ECE,130,115,88.46,66.21,On Track,Low
+S0344,Student 344,IT,140,133,95.0,77.22,Advanced,Low
+S0345,Student 345,ECE,120,57,47.5,50.74,Advanced,High
+S0346,Student 346,ECE,140,117,83.57,76.96,Advanced,Low
+S0347,Student 347,CE,130,67,51.54,72.05,Advanced,Medium
+S0348,Student 348,ME,130,108,83.08,63.25,Delayed,Low
+S0349,Student 349,ME,130,74,56.92,80.01,Advanced,Medium
+S0350,Student 350,ECE,120,86,71.67,95.53,Advanced,Medium
+S0351,Student 351,ECE,140,133,95.0,98.53,Advanced,Low
+S0352,Student 352,IT,130,83,63.85,97.78,On Track,Medium
+S0353,Student 353,CS,120,83,69.17,97.14,Delayed,Medium
+S0354,Student 354,ECE,140,85,60.71,71.7,On Track,Medium
+S0355,Student 355,ME,140,61,43.57,56.52,Advanced,High
+S0356,Student 356,CS,120,76,63.33,72.55,On Track,Medium
+S0357,Student 357,ME,120,97,80.83,58.36,On Track,Low
+S0358,Student 358,CE,120,47,39.17,55.98,Delayed,High
+S0359,Student 359,IT,120,58,48.33,68.14,Advanced,High
+S0360,Student 360,CS,120,120,100.0,57.56,Advanced,Low
+S0361,Student 361,ECE,130,129,99.23,98.62,Advanced,Low
+S0362,Student 362,ECE,120,57,47.5,63.17,On Track,High
+S0363,Student 363,ME,140,120,85.71,80.39,Advanced,Low
+S0364,Student 364,IT,120,68,56.67,71.52,Delayed,Medium
+S0365,Student 365,CS,140,70,50.0,52.92,Delayed,Medium
+S0366,Student 366,CE,130,90,69.23,78.0,On Track,Medium
+S0367,Student 367,CE,120,98,81.67,65.47,Delayed,Low
+S0368,Student 368,IT,140,91,65.0,67.37,Delayed,Medium
+S0369,Student 369,CS,140,127,90.71,91.65,On Track,Low
+S0370,Student 370,CS,140,116,82.86,66.11,Delayed,Low
+S0371,Student 371,CE,120,76,63.33,92.48,Advanced,Medium
+S0372,Student 372,CS,130,78,60.0,88.17,On Track,Medium
+S0373,Student 373,CS,140,100,71.43,83.75,Advanced,Medium
+S0374,Student 374,IT,130,75,57.69,72.88,Delayed,Medium
+S0375,Student 375,CE,140,78,55.71,81.2,On Track,Medium
+S0376,Student 376,IT,120,62,51.67,99.13,Advanced,Medium
+S0377,Student 377,ME,120,99,82.5,90.05,Delayed,Low
+S0378,Student 378,CE,120,34,28.33,53.32,Advanced,High
+S0379,Student 379,CS,140,109,77.86,97.9,Advanced,Low
+S0380,Student 380,CS,120,102,85.0,60.65,Delayed,Low
+S0381,Student 381,IT,120,95,79.17,99.69,On Track,Low
+S0382,Student 382,CE,130,94,72.31,97.44,On Track,Medium
+S0383,Student 383,ME,120,33,27.5,92.09,On Track,High
+S0384,Student 384,CE,140,97,69.29,71.42,Delayed,Medium
+S0385,Student 385,IT,140,57,40.71,58.85,Delayed,High
+S0386,Student 386,CS,130,47,36.15,58.53,On Track,High
+S0387,Student 387,IT,130,33,25.38,87.21,Delayed,High
+S0388,Student 388,ECE,130,42,32.31,53.4,Advanced,High
+S0389,Student 389,CE,130,113,86.92,99.24,Advanced,Low
+S0390,Student 390,CS,130,38,29.23,81.04,Advanced,High
+S0391,Student 391,ME,120,35,29.17,66.81,On Track,High
+S0392,Student 392,IT,120,58,48.33,84.67,Delayed,High
+S0393,Student 393,IT,130,99,76.15,57.45,On Track,Low
+S0394,Student 394,CS,130,88,67.69,87.54,On Track,Medium
+S0395,Student 395,CS,130,71,54.62,93.02,Delayed,Medium
+S0396,Student 396,CE,140,125,89.29,92.64,On Track,Low
+S0397,Student 397,ME,130,109,83.85,95.82,Delayed,Low
+S0398,Student 398,CE,140,98,70.0,97.42,Delayed,Medium
+S0399,Student 399,IT,120,39,32.5,93.12,On Track,High
+S0400,Student 400,ME,130,105,80.77,72.73,Delayed,Low
+S0401,Student 401,ECE,140,73,52.14,63.56,Advanced,Medium
+S0402,Student 402,IT,130,91,70.0,56.76,On Track,Medium
+S0403,Student 403,CE,140,85,60.71,91.74,Advanced,Medium
+S0404,Student 404,ECE,130,83,63.85,90.46,Delayed,Medium
+S0405,Student 405,CE,130,35,26.92,93.76,Delayed,High
+S0406,Student 406,CS,120,87,72.5,59.8,Advanced,Medium
+S0407,Student 407,CS,120,119,99.17,73.78,Advanced,Low
+S0408,Student 408,IT,120,83,69.17,50.28,On Track,Medium
+S0409,Student 409,CS,140,92,65.71,75.11,On Track,Medium
+S0410,Student 410,IT,130,85,65.38,76.82,Advanced,Medium
+S0411,Student 411,CE,120,91,75.83,96.0,On Track,Low
+S0412,Student 412,IT,140,84,60.0,81.47,Advanced,Medium
+S0413,Student 413,ME,140,66,47.14,76.6,On Track,High
+S0414,Student 414,IT,130,95,73.08,84.16,Delayed,Medium
+S0415,Student 415,IT,120,93,77.5,91.39,Delayed,Low
+S0416,Student 416,ECE,130,40,30.77,75.21,On Track,High
+S0417,Student 417,CE,130,71,54.62,63.73,Advanced,Medium
+S0418,Student 418,CE,140,120,85.71,67.79,Delayed,Low
+S0419,Student 419,CE,140,38,27.14,91.94,Delayed,High
+S0420,Student 420,IT,120,34,28.33,54.31,Delayed,High
+S0421,Student 421,ECE,140,53,37.86,74.95,Advanced,High
+S0422,Student 422,ME,120,61,50.83,67.2,On Track,Medium
+S0423,Student 423,ECE,140,71,50.71,87.07,Advanced,Medium
+S0424,Student 424,CE,120,87,72.5,89.5,On Track,Medium
+S0425,Student 425,IT,120,91,75.83,83.68,Delayed,Low
+S0426,Student 426,CE,130,33,25.38,94.58,On Track,High
+S0427,Student 427,CS,120,56,46.67,59.26,Delayed,High
+S0428,Student 428,CE,140,134,95.71,67.9,Advanced,Low
+S0429,Student 429,CS,130,93,71.54,72.52,On Track,Medium
+S0430,Student 430,ECE,120,49,40.83,69.5,Delayed,High
+S0431,Student 431,ME,120,36,30.0,82.76,On Track,High
+S0432,Student 432,IT,120,109,90.83,89.47,Delayed,Low
+S0433,Student 433,CE,140,86,61.43,89.55,Advanced,Medium
+S0434,Student 434,IT,130,88,67.69,50.61,On Track,Medium
+S0435,Student 435,ME,130,110,84.62,94.26,Delayed,Low
+S0436,Student 436,CS,130,65,50.0,93.09,On Track,Medium
+S0437,Student 437,ECE,140,72,51.43,81.8,On Track,Medium
+S0438,Student 438,ME,120,112,93.33,61.21,On Track,Low
+S0439,Student 439,CE,130,55,42.31,53.08,Delayed,High
+S0440,Student 440,ME,120,113,94.17,72.1,Advanced,Low
+S0441,Student 441,ECE,130,107,82.31,78.55,Advanced,Low
+S0442,Student 442,CS,120,85,70.83,91.18,On Track,Medium
+S0443,Student 443,CS,140,55,39.29,69.18,On Track,High
+S0444,Student 444,CE,130,73,56.15,69.54,On Track,Medium
+S0445,Student 445,CS,140,76,54.29,82.34,Advanced,Medium
+S0446,Student 446,CS,130,48,36.92,62.6,Delayed,High
+S0447,Student 447,ME,120,95,79.17,73.42,Advanced,Low
+S0448,Student 448,IT,120,46,38.33,65.2,Advanced,High
+S0449,Student 449,CE,140,109,77.86,61.4,On Track,Low
+S0450,Student 450,CE,120,77,64.17,57.7,On Track,Medium
+S0451,Student 451,CS,120,106,88.33,95.88,Advanced,Low
+S0452,Student 452,CS,120,110,91.67,68.7,On Track,Low
+S0453,Student 453,ME,120,36,30.0,82.69,On Track,High
+S0454,Student 454,IT,130,43,33.08,60.42,Delayed,High
+S0455,Student 455,IT,140,96,68.57,82.3,Advanced,Medium
+S0456,Student 456,ECE,120,31,25.83,54.7,On Track,High
+S0457,Student 457,ECE,130,108,83.08,65.2,On Track,Low
+S0458,Student 458,ME,140,71,50.71,60.89,Advanced,Medium
+S0459,Student 459,IT,140,130,92.86,74.39,Advanced,Low
+S0460,Student 460,CE,140,99,70.71,57.88,Advanced,Medium
+S0461,Student 461,IT,140,114,81.43,52.62,On Track,Low
+S0462,Student 462,IT,130,56,43.08,67.43,Delayed,High
+S0463,Student 463,CS,120,88,73.33,53.1,Delayed,Medium
+S0464,Student 464,IT,140,74,52.86,65.12,Delayed,Medium
+S0465,Student 465,ECE,120,46,38.33,74.9,On Track,High
+S0466,Student 466,ECE,130,118,90.77,70.17,Advanced,Low
+S0467,Student 467,ECE,140,79,56.43,93.89,On Track,Medium
+S0468,Student 468,IT,140,38,27.14,61.79,Advanced,High
+S0469,Student 469,IT,140,55,39.29,82.15,Advanced,High
+S0470,Student 470,CS,120,111,92.5,52.93,On Track,Low
+S0471,Student 471,ECE,120,50,41.67,52.63,Advanced,High
+S0472,Student 472,CS,120,35,29.17,57.06,Advanced,High
+S0473,Student 473,CS,140,122,87.14,66.2,On Track,Low
+S0474,Student 474,ECE,130,80,61.54,67.88,Delayed,Medium
+S0475,Student 475,CE,140,103,73.57,76.29,Advanced,Medium
+S0476,Student 476,ME,120,96,80.0,86.19,Delayed,Low
+S0477,Student 477,CS,120,37,30.83,77.07,Delayed,High
+S0478,Student 478,IT,130,67,51.54,89.37,Advanced,Medium
+S0479,Student 479,ME,140,87,62.14,73.63,On Track,Medium
+S0480,Student 480,ME,130,72,55.38,68.75,On Track,Medium
+S0481,Student 481,ECE,130,31,23.85,85.11,On Track,High
+S0482,Student 482,ME,120,59,49.17,87.81,On Track,High
+S0483,Student 483,CE,140,101,72.14,78.7,On Track,Medium
+S0484,Student 484,ME,140,114,81.43,89.64,Delayed,Low
+S0485,Student 485,IT,140,54,38.57,90.61,Advanced,High
+S0486,Student 486,IT,120,32,26.67,72.45,On Track,High
+S0487,Student 487,CE,120,99,82.5,59.08,Delayed,Low
+S0488,Student 488,ECE,120,114,95.0,75.06,Delayed,Low
+S0489,Student 489,ME,140,116,82.86,69.64,Advanced,Low
+S0490,Student 490,IT,120,31,25.83,52.67,On Track,High
+S0491,Student 491,ECE,140,117,83.57,67.19,On Track,Low
+S0492,Student 492,CE,120,53,44.17,87.64,Delayed,High
+S0493,Student 493,ME,120,64,53.33,69.75,On Track,Medium
+S0494,Student 494,ME,130,55,42.31,90.97,Delayed,High
+S0495,Student 495,CS,120,66,55.0,67.4,On Track,Medium
+S0496,Student 496,IT,140,40,28.57,97.19,On Track,High
+S0497,Student 497,ECE,130,92,70.77,55.5,On Track,Medium
+S0498,Student 498,CE,120,80,66.67,98.78,On Track,Medium
+S0499,Student 499,CE,130,124,95.38,93.08,On Track,Low
+S0500,Student 500,IT,120,86,71.67,53.04,On Track,Medium
