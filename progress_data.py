@@ -33,7 +33,7 @@ for col in ["progress_percentage", "expected_progress", "required_credits", "com
 # Clustering for Risk
 # ---------------------
 features = ["attendance_rate", "gpa", "assignment_completion", "lms_activity"]
-X = student_df[features]
+X = student_df[features].fillna(0)
 kmeans = KMeans(n_clusters=3, random_state=42)
 student_df["cluster"] = kmeans.fit_predict(X)
 
@@ -70,7 +70,7 @@ student_df["risk_reason"] = student_df.apply(get_reason, axis=1)
 student_df["study_tips"] = student_df.apply(get_tips, axis=1)
 
 # ---------------------
-# Schedule Status
+# Schedule Status based on Progress
 # ---------------------
 def schedule_flag(row):
     if pd.isnull(row["progress_percentage"]) or pd.isnull(row["expected_progress"]):
@@ -119,12 +119,12 @@ if user_id:
             st.plotly_chart(fig, use_container_width=True)
 
             st.markdown("### 🗓️ Schedule Status")
-            schedule_counts = filtered_df["schedule_status"].value_counts().reset_index()
-            schedule_counts.columns = ["schedule_status", "count"]
+            sched_data = filtered_df["schedule_status"].value_counts().reset_index()
+            sched_data.columns = ["Status", "Count"]
             sched_fig = px.bar(
-                schedule_counts,
-                x="schedule_status", y="count", color="schedule_status",
-                labels={"schedule_status": "Status", "count": "Count"},
+                sched_data,
+                x="Status", y="Count", color="Status",
+                labels={"Status": "Schedule Status", "Count": "Number of Students"},
                 color_discrete_map={"Behind Schedule": "red", "On Track": "green", "Unknown": "gray"}
             )
             st.plotly_chart(sched_fig, use_container_width=True)
@@ -134,12 +134,8 @@ if user_id:
             display_cols = [
                 "student_id", "attendance_rate", "gpa", "assignment_completion", "lms_activity",
                 "predicted_risk", "risk_reason", "study_tips",
+                "progress_percentage", "expected_progress", "required_credits", "completed_credits", "schedule_status"
             ]
-
-            for col in ["progress_percentage", "expected_progress", "required_credits", "completed_credits", "schedule_status"]:
-                if col in filtered_df.columns:
-                    display_cols.append(col)
-
             st.dataframe(filtered_df[display_cols], use_container_width=True)
 
         with tab3:
