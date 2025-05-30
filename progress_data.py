@@ -119,10 +119,12 @@ if user_id:
             st.plotly_chart(fig, use_container_width=True)
 
             st.markdown("### 🗓️ Schedule Status")
+            schedule_counts = filtered_df["schedule_status"].value_counts().reset_index()
+            schedule_counts.columns = ["schedule_status", "count"]
             sched_fig = px.bar(
-                filtered_df["schedule_status"].value_counts().reset_index(),
-                x="index", y="schedule_status", color="index",
-                labels={"index": "Status", "schedule_status": "Count"},
+                schedule_counts,
+                x="schedule_status", y="count", color="schedule_status",
+                labels={"schedule_status": "Status", "count": "Count"},
                 color_discrete_map={"Behind Schedule": "red", "On Track": "green", "Unknown": "gray"}
             )
             st.plotly_chart(sched_fig, use_container_width=True)
