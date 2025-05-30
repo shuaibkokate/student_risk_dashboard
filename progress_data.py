@@ -7,13 +7,11 @@ from sklearn.cluster import KMeans
 # ---------------------
 # Load and Preprocess
 # ---------------------
-
-# Load CSVs
 student_df = pd.read_csv("student_risk_predictions.csv")
 mapping_df = pd.read_csv("advisor_student_mapping.csv")
 degree_df = pd.read_csv("degree_progress_500.csv")
 
-# Normalize column names to lower case and strip spaces
+# Normalize column names
 student_df.columns = student_df.columns.str.strip().str.lower()
 mapping_df.columns = mapping_df.columns.str.strip().str.lower()
 degree_df.columns = degree_df.columns.str.strip().str.lower()
@@ -23,46 +21,29 @@ student_df["student_id"] = student_df["student_id"].astype(str)
 mapping_df["student_id"] = mapping_df["student_id"].astype(str)
 degree_df["student_id"] = degree_df["student_id"].astype(str)
 
-# Merge degree progress data into student_df on student_id
+# Merge student + degree progress
 student_df = pd.merge(student_df, degree_df, on="student_id", how="left")
 
-# Ensure these columns exist (fill NaN if missing)
-for col in ["completed_credits", "required_credits", "expected_progress", "progress_percentage"]:
+# Fill missing expected progress if required
+if "expected_progress" not in student_df.columns or student_df["expected_progress"].isnull().all():
+    student_df["expected_progress"] = 100  # Assume full expected progress if missing
+
+# Ensure progress fields exist
+for col in ["progress_percentage", "expected_progress", "required_credits", "completed_credits"]:
     if col not in student_df.columns:
         student_df[col] = np.nan
-
-# Calculate progress_percentage if missing or NaN but completed_credits and required_credits exist
-def calc_progress(row):
-    if pd.notnull(row["progress_percentage"]):
-        return row["progress_percentage"]
-    if pd.notnull(row["completed_credits"]) and pd.notnull(row["required_credits"]) and row["required_credits"] > 0:
-        return (row["completed_credits"] / row["required_credits"]) * 100
-    return np.nan
-
-student_df["progress_percentage"] = student_df.apply(calc_progress, axis=1)
-
-# Fill expected_progress if missing with default value 50 (can be customized)
-student_df["expected_progress"] = student_df["expected_progress"].fillna(50)
 
 # ---------------------
 # Clustering for Risk
 # ---------------------
-
 features = ["attendance_rate", "gpa", "assignment_completion", "lms_activity"]
-
-# Fill NaNs in clustering features with 0 or reasonable defaults to avoid errors
-student_df[features] = student_df[features].fillna(0)
-
-X = student_df[features]
+X = student_df[features].fillna(0)
 kmeans = KMeans(n_clusters=3, random_state=42)
 student_df["cluster"] = kmeans.fit_predict(X)
 
-# Ranking risk based on centroids
+# Assign risk level
 centroids = kmeans.cluster_centers_
-risk_scores = [
-    (1 - c[0]) + (1 - c[1]/4.0) + (1 - c[2]) + (1 - c[3])
-    for c in centroids
-]
+risk_scores = [(1 - c[0]) + (1 - c[1]/4.0) + (1 - c[2]) + (1 - c[3]) for c in centroids]
 cluster_order = np.argsort(risk_scores)[::-1]
 cluster_map = {cluster: ["High", "Medium", "Low"][i] for i, cluster in enumerate(cluster_order)}
 student_df["predicted_risk"] = student_df["cluster"].map(cluster_map)
@@ -70,7 +51,6 @@ student_df["predicted_risk"] = student_df["cluster"].map(cluster_map)
 # ---------------------
 # Reason and Tips
 # ---------------------
-
 def get_reason(row):
     reasons = []
     if row["attendance_rate"] < 0.75: reasons.append("Low attendance")
@@ -91,29 +71,29 @@ student_df["risk_reason"] = student_df.apply(get_reason, axis=1)
 student_df["study_tips"] = student_df.apply(get_tips, axis=1)
 
 # ---------------------
-# Schedule Status Calculation
+# Schedule Status
 # ---------------------
-
 def schedule_flag(row):
-    if pd.isnull(row["progress_percentage"]) or pd.isnull(row["expected_progress"]):
+    try:
+        if pd.isnull(row["progress_percentage"]) or pd.isnull(row["expected_progress"]):
+            return "Unknown"
+        elif row["progress_percentage"] < row["expected_progress"] - 10:
+            return "Behind Schedule"
+        else:
+            return "On Track"
+    except:
         return "Unknown"
-    # Behind schedule if progress is 10% or more below expected progress
-    if row["progress_percentage"] < (row["expected_progress"] - 10):
-        return "Behind Schedule"
-    return "On Track"
 
 student_df["schedule_status"] = student_df.apply(schedule_flag, axis=1)
 
 # ---------------------
 # Streamlit UI
 # ---------------------
-
 st.set_page_config(page_title="Student Risk Dashboard", layout="wide")
-
 st.markdown("## 🎓 AI-Enhanced Student Risk Dashboard")
 st.markdown("Track at-risk students, analyze academic progress, and intervene early.")
 
-# Sidebar Filters
+# Sidebar
 st.sidebar.title("🔍 Filter Options")
 role = st.sidebar.selectbox("Select Role", ["advisor", "chair"])
 user_id = st.sidebar.text_input(f"Enter your {role} ID")
@@ -138,19 +118,19 @@ if user_id:
             col3.metric("🕒 Behind Schedule", (filtered_df["schedule_status"] == "Behind Schedule").sum())
 
             st.markdown("### 📈 Risk Distribution")
-            fig = px.pie(filtered_df, names="predicted_risk", title="Risk Levels", color="predicted_risk",
+            fig = px.pie(filtered_df, names="predicted_risk", title="Risk Levels",
                          color_discrete_map={"High": "red", "Medium": "orange", "Low": "green"})
             st.plotly_chart(fig, use_container_width=True)
 
             st.markdown("### 🗓️ Schedule Status")
             sched_counts = filtered_df["schedule_status"].value_counts().reset_index()
-            sched_counts.columns = ["schedule_status", "count"]
-            sched_fig = px.bar(
-                sched_counts,
-                x="schedule_status", y="count", color="schedule_status",
-                labels={"schedule_status": "Status", "count": "Count"},
-                color_discrete_map={"Behind Schedule": "red", "On Track": "green", "Unknown": "gray"}
-            )
+            sched_counts.columns = ["Status", "Count"]
+            sched_fig = px.bar(sched_counts, x="Status", y="Count", color="Status",
+                               color_discrete_map={
+                                   "Behind Schedule": "red",
+                                   "On Track": "green",
+                                   "Unknown": "gray"
+                               })
             st.plotly_chart(sched_fig, use_container_width=True)
 
         with tab2:
@@ -160,11 +140,8 @@ if user_id:
                 "predicted_risk", "risk_reason", "study_tips",
                 "progress_percentage", "expected_progress", "required_credits", "completed_credits", "schedule_status"
             ]
-
-            # Show only existing columns (defensive)
-            display_cols = [col for col in display_cols if col in filtered_df.columns]
-
-            st.dataframe(filtered_df[display_cols], use_container_width=True)
+            available_cols = [col for col in display_cols if col in filtered_df.columns]
+            st.dataframe(filtered_df[available_cols], use_container_width=True)
 
         with tab3:
             st.markdown("### 📥 Download Full Report")
