@@ -11,11 +11,16 @@ student_df = pd.read_csv("student_risk_predictions.csv")
 mapping_df = pd.read_csv("advisor_student_mapping.csv")
 degree_df = pd.read_csv("degree_progress_500.csv")
 
-# Convert student_id to string for merging
+# Normalize column names
+student_df.columns = student_df.columns.str.strip().str.lower()
+degree_df.columns = degree_df.columns.str.strip().str.lower()
+mapping_df.columns = mapping_df.columns.str.strip().str.lower()
+
+# Ensure IDs are strings
 student_df["student_id"] = student_df["student_id"].astype(str)
 degree_df["student_id"] = degree_df["student_id"].astype(str)
 
-# Merge degree progress into main student dataset
+# Merge degree progress data
 student_df = pd.merge(student_df, degree_df, on="student_id", how="left")
 
 # ---------------------
@@ -27,7 +32,7 @@ kmeans = KMeans(n_clusters=3, random_state=42)
 clusters = kmeans.fit_predict(X)
 student_df["cluster"] = clusters
 
-# Cluster Risk Mapping
+# Risk score mapping
 cluster_centers = kmeans.cluster_centers_
 risk_scores = [
     (1 - center[features.index("attendance_rate")]) +
@@ -39,7 +44,7 @@ risk_scores = [
 sorted_clusters = np.argsort(risk_scores)[::-1]
 risk_labels = ["High", "Medium", "Low"]
 cluster_to_risk = {cluster_idx: risk_labels[rank] for rank, cluster_idx in enumerate(sorted_clusters)}
-student_df["Predicted Risk"] = student_df["cluster"].map(cluster_to_risk)
+student_df["predicted_risk"] = student_df["cluster"].map(cluster_to_risk)
 
 # ---------------------
 # Risk Reason & Study Tips
@@ -68,21 +73,21 @@ def generate_study_tips(row):
         tips.append("Engage with online resources.")
     return " ".join(tips) if tips else "Keep up the good work!"
 
-student_df["Risk Reason"] = student_df.apply(generate_risk_reason, axis=1)
-student_df["Study Tips"] = student_df.apply(generate_study_tips, axis=1)
+student_df["risk_reason"] = student_df.apply(generate_risk_reason, axis=1)
+student_df["study_tips"] = student_df.apply(generate_study_tips, axis=1)
 
 # ---------------------
-# Schedule Status Logic
+# Schedule Status
 # ---------------------
 def flag_behind_schedule(row):
-    if pd.isnull(row['progress_percentage']) or pd.isnull(row['expected_progress']):
+    if pd.isnull(row.get('progress_percentage')) or pd.isnull(row.get('expected_progress')):
         return "Unknown"
     elif row['progress_percentage'] < row['expected_progress'] - 10:
         return "Behind Schedule"
     else:
         return "On Track"
 
-student_df["Schedule Status"] = student_df.apply(flag_behind_schedule, axis=1)
+student_df["schedule_status"] = student_df.apply(flag_behind_schedule, axis=1)
 
 # ---------------------
 # Streamlit UI
@@ -95,9 +100,9 @@ user_id = st.text_input(f"Enter your {role} ID:")
 
 if user_id:
     if role == "advisor":
-        allowed_students = mapping_df[mapping_df["advisor_id"] == user_id]["student_id"].tolist()
+        allowed_students = mapping_df[mapping_df["advisor_id"] == user_id]["student_id"].astype(str).tolist()
     else:
-        allowed_students = mapping_df[mapping_df["program_chair_id"] == user_id]["student_id"].tolist()
+        allowed_students = mapping_df[mapping_df["program_chair_id"] == user_id]["student_id"].astype(str).tolist()
 
     filtered_df = student_df[student_df["student_id"].isin(allowed_students)]
 
@@ -105,30 +110,32 @@ if user_id:
         st.subheader("📊 Assigned Student Risk Details")
         st.dataframe(filtered_df[[
             "student_id", "attendance_rate", "gpa", "assignment_completion", "lms_activity",
-            "Predicted Risk", "Risk Reason", "Study Tips",
-            "progress_percentage", "expected_progress", "completed_credits", "required_credits", "Schedule Status"
+            "predicted_risk", "risk_reason", "study_tips",
+            "progress_percentage", "expected_progress", "required_credits", "completed_credits", "schedule_status"
         ]])
 
         st.markdown("### 📈 Risk Level Distribution")
-        fig = px.pie(filtered_df, names="Predicted Risk", title="Risk Level Distribution")
+        fig = px.pie(filtered_df, names="predicted_risk", title="Risk Level Distribution")
         st.plotly_chart(fig)
 
         st.markdown("### 🗓️ Schedule Status Summary")
-        status_counts = filtered_df["Schedule Status"].value_counts().reset_index()
+        status_counts = filtered_df["schedule_status"].value_counts().reset_index()
         status_counts.columns = ['Schedule Status', 'Count']
         fig2 = px.bar(status_counts, x="Schedule Status", y="Count",
                       color="Schedule Status",
                       color_discrete_map={"Behind Schedule": "red", "On Track": "green", "Unknown": "gray"})
         st.plotly_chart(fig2)
 
-        st.download_button("📥 Download CSV", data=filtered_df.to_csv(index=False), file_name="risk_report.csv")
+        st.download_button("📥 Download CSV", data=filtered_df.to_csv(index=False),
+                           file_name="student_risk_report.csv")
 
         st.markdown("### 🔍 Student Details")
         for _, row in filtered_df.iterrows():
             with st.expander(f"Student ID: {row['student_id']}"):
                 st.write({col: row[col] for col in features + [
-                    'Predicted Risk', 'Risk Reason', 'Study Tips',
-                    'progress_percentage', 'expected_progress', 'completed_credits', 'required_credits', 'Schedule Status'
+                    'predicted_risk', 'risk_reason', 'study_tips',
+                    'progress_percentage', 'expected_progress',
+                    'completed_credits', 'required_credits', 'schedule_status'
                 ]})
     else:
         st.warning("No students assigned to this user ID.")
