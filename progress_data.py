@@ -3,9 +3,6 @@ import pandas as pd
 from sklearn.cluster import KMeans
 import numpy as np
 import plotly.express as px
-from langchain.chains import ConversationChain
-from langchain.memory import ConversationBufferMemory
-from langchain.llms import FakeListLLM
 
 # ---------------------
 # Load Datasets
@@ -39,14 +36,13 @@ risk_scores = [
     (1 - center[features.index("lms_activity")])
     for center in cluster_centers
 ]
-
 sorted_clusters = np.argsort(risk_scores)[::-1]
 risk_labels = ["High", "Medium", "Low"]
 cluster_to_risk = {cluster_idx: risk_labels[rank] for rank, cluster_idx in enumerate(sorted_clusters)}
 student_df["Predicted Risk"] = student_df["cluster"].map(cluster_to_risk)
 
 # ---------------------
-# Reason Generation
+# Risk Reason & Study Tips
 # ---------------------
 def generate_risk_reason(row):
     reasons = []
@@ -60,8 +56,6 @@ def generate_risk_reason(row):
         reasons.append(f"Low LMS activity ({row['lms_activity']:.0%})")
     return " & ".join(reasons) if reasons else "No major concerns detected"
 
-student_df["Risk Reason"] = student_df.apply(generate_risk_reason, axis=1)
-
 def generate_study_tips(row):
     tips = []
     if row["gpa"] < 2.0:
@@ -74,8 +68,12 @@ def generate_study_tips(row):
         tips.append("Engage with online resources.")
     return " ".join(tips) if tips else "Keep up the good work!"
 
+student_df["Risk Reason"] = student_df.apply(generate_risk_reason, axis=1)
 student_df["Study Tips"] = student_df.apply(generate_study_tips, axis=1)
 
+# ---------------------
+# Schedule Status Logic
+# ---------------------
 def flag_behind_schedule(row):
     if pd.isnull(row['progress_percentage']) or pd.isnull(row['expected_progress']):
         return "Unknown"
@@ -85,17 +83,6 @@ def flag_behind_schedule(row):
         return "On Track"
 
 student_df["Schedule Status"] = student_df.apply(flag_behind_schedule, axis=1)
-
-# ---------------------
-# Dummy LLM (for offline demo)
-# ---------------------
-class SimpleLLM(FakeListLLM):
-    def __init__(self):
-        super().__init__(responses=["I'll help you! Please check student's risk, schedule, and credits."])
-
-llm = SimpleLLM()
-memory = ConversationBufferMemory()
-conversation = ConversationChain(llm=llm, memory=memory, verbose=False)
 
 # ---------------------
 # Streamlit UI
@@ -119,7 +106,7 @@ if user_id:
         st.dataframe(filtered_df[[
             "student_id", "attendance_rate", "gpa", "assignment_completion", "lms_activity",
             "Predicted Risk", "Risk Reason", "Study Tips",
-            "progress_percentage", "required_credits", "completed_credits", "Schedule Status"
+            "progress_percentage", "expected_progress", "completed_credits", "required_credits", "Schedule Status"
         ]])
 
         st.markdown("### 📈 Risk Level Distribution")
@@ -141,26 +128,7 @@ if user_id:
             with st.expander(f"Student ID: {row['student_id']}"):
                 st.write({col: row[col] for col in features + [
                     'Predicted Risk', 'Risk Reason', 'Study Tips',
-                    'progress_percentage', 'completed_credits', 'required_credits', 'Schedule Status'
+                    'progress_percentage', 'expected_progress', 'completed_credits', 'required_credits', 'Schedule Status'
                 ]})
-
-        st.markdown("### 💬 Ask the Advisor Bot")
-        user_input = st.text_input("Ask something:")
-        if user_input:
-            if "how many credits" in user_input.lower() and "need" in user_input.lower():
-                sid = None
-                for student in filtered_df["student_id"]:
-                    if student in user_input:
-                        sid = student
-                        break
-                if sid:
-                    student_row = filtered_df[filtered_df["student_id"] == sid].iloc[0]
-                    needed = student_row["required_credits"] - student_row["completed_credits"]
-                    st.success(f"Student {sid} needs {needed} more credits to graduate.")
-                else:
-                    st.warning("Student ID not found in your query.")
-            else:
-                response = conversation.predict(input=user_input)
-                st.success(response)
     else:
         st.warning("No students assigned to this user ID.")
