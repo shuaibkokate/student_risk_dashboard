@@ -4,7 +4,7 @@ import numpy as np
 import plotly.express as px
 from sklearn.cluster import KMeans
 
-# ✅ Must be the first Streamlit command
+# ✅ Streamlit page config must come first
 st.set_page_config(page_title="Student Risk Dashboard", layout="wide")
 
 # ---------------------
@@ -29,7 +29,6 @@ degree_df["student_id"] = degree_df["student_id"].astype(str)
 # ---------------------
 features = ["attendance_rate", "gpa", "assignment_completion", "lms_activity"]
 
-# Define aggregation functions
 agg_funcs = {
     "attendance_rate": "mean",
     "gpa": "mean",
@@ -41,11 +40,9 @@ agg_funcs = {
     "completed_credits": "sum"
 }
 
-# Filter only valid aggregations
 valid_agg_funcs = {k: v for k, v in agg_funcs.items() if k in degree_df.columns}
 aggregated = degree_df.groupby("student_id").agg(valid_agg_funcs).reset_index()
 
-# Merge aggregated data into student_df
 student_df = pd.merge(student_df, aggregated, on="student_id", how="left")
 
 # Ensure required features exist
@@ -61,7 +58,6 @@ X = student_df[features].fillna(0)
 kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
 student_df["cluster"] = kmeans.fit_predict(X)
 
-# Risk scoring and cluster mapping
 centroids = kmeans.cluster_centers_
 risk_scores = [(1 - c[0]) + (1 - c[1]/4.0) + (1 - c[2]) + (1 - c[3]) for c in centroids]
 cluster_order = np.argsort(risk_scores)[::-1]
@@ -135,12 +131,19 @@ if user_id:
         # Overview
         with tab1:
             col1, col2, col3 = st.columns(3)
+
+            # Ensure all risk categories appear
+            all_risks = ["High", "Medium", "Low"]
+            risk_count = filtered_df["predicted_risk"].value_counts().reindex(all_risks, fill_value=0).reset_index()
+            risk_count.columns = ["predicted_risk", "count"]
+
             col1.metric("🎯 Total Students", len(filtered_df))
-            col2.metric("🔥 High Risk", (filtered_df["predicted_risk"] == "High").sum())
-            col3.metric("🕒 Behind Schedule", (filtered_df["schedule_status"] == "Behind Schedule").sum())
+            col2.metric("🔥 High Risk", risk_count[risk_count["predicted_risk"] == "High"]["count"].values[0])
+            col3.metric("🟡 Medium Risk", risk_count[risk_count["predicted_risk"] == "Medium"]["count"].values[0])
+            st.metric("✅ Low Risk", risk_count[risk_count["predicted_risk"] == "Low"]["count"].values[0])
 
             st.markdown("### 📈 Risk Distribution")
-            fig = px.pie(filtered_df, names="predicted_risk", title="Risk Levels")
+            fig = px.pie(risk_count, names="predicted_risk", values="count", title="Risk Levels")
             st.plotly_chart(fig, use_container_width=True)
 
             st.markdown("### 🗓️ Schedule Status")
