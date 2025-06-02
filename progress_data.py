@@ -7,7 +7,7 @@ from sklearn.cluster import KMeans
 # ---------------------
 # Load and Preprocess
 # ---------------------
-student_df = pd.read_csv("student_data_500.csv")
+student_df = pd.read_csv("student_risk_predictions.csv")
 mapping_df = pd.read_csv("advisor_student_mapping.csv")
 degree_df = pd.read_csv("degree_progress_500.csv")
 
@@ -34,9 +34,12 @@ agg_funcs = {
     "required_credits": "sum",
     "completed_credits": "sum"
 }
-aggregated = degree_df.groupby("student_id").agg(agg_funcs).reset_index()
 
-# Merge into student_df
+# Only include aggregation functions for columns that exist
+valid_agg_funcs = {k: v for k, v in agg_funcs.items() if k in degree_df.columns}
+aggregated = degree_df.groupby("student_id").agg(valid_agg_funcs).reset_index()
+
+# Merge with student_df
 student_df = pd.merge(student_df, aggregated, on="student_id", how="left")
 
 # ---------------------
@@ -44,8 +47,10 @@ student_df = pd.merge(student_df, aggregated, on="student_id", how="left")
 # ---------------------
 features = ["attendance_rate", "gpa", "assignment_completion", "lms_activity"]
 missing_features = [f for f in features if f not in student_df.columns]
+
 if missing_features:
-    raise ValueError(f"Missing clustering features in student_df: {missing_features}")
+    st.error(f"❌ Missing clustering features in student_df: {missing_features}. Please check your source data.")
+    st.stop()
 
 X = student_df[features].fillna(0)
 kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
