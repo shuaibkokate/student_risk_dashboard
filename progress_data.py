@@ -22,16 +22,16 @@ mapping_df["student_id"] = mapping_df["student_id"].astype(str)
 degree_df["student_id"] = degree_df["student_id"].astype(str)
 
 # Merge student + degree progress
-student_df = pd.merge(student_df, degree_df, on="student_id", how="left")
+student_merge = pd.merge(student_df, degree_df, on="student_id", how="left")
 
 # Fill missing expected progress if required
-if "expected_progress" not in student_df.columns or student_df["expected_progress"].isnull().all():
-    student_df["expected_progress"] = 100  # Assume full expected progress if missing
+if "expected_progress" not in student_merge.columns or student_merge["expected_progress"].isnull().all():
+    student_merge["expected_progress"] = 100  # Assume full expected progress if missing
 
 # Ensure progress fields exist
 for col in ["progress_percentage", "expected_progress", "required_credits", "completed_credits"]:
-    if col not in student_df.columns:
-        student_df[col] = np.nan
+    if col not in student_merge.columns:
+        student_merge[col] = np.nan
 
 # ---------------------
 # Clustering for Risk
