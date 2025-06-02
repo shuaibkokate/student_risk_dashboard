@@ -16,46 +16,23 @@ student_df.columns = student_df.columns.str.strip().str.lower()
 mapping_df.columns = mapping_df.columns.str.strip().str.lower()
 degree_df.columns = degree_df.columns.str.strip().str.lower()
 
-# Ensure IDs are strings
+# Ensure ID columns are string
 student_df["student_id"] = student_df["student_id"].astype(str)
-mapping_df["student_id"] = mapping_df["student_id"].astype(str)
 degree_df["student_id"] = degree_df["student_id"].astype(str)
+mapping_df["student_id"] = mapping_df["student_id"].astype(str)
 
-# ---------------------
-# Student-Level Aggregation from Course-Wise Data
-# ---------------------
-available_columns = degree_df.columns.tolist()
-agg_funcs = {}
-if "attendance_rate" in available_columns:
-    agg_funcs["attendance_rate"] = "mean"
-if "gpa" in available_columns:
-    agg_funcs["gpa"] = "mean"
-if "assignment_completion" in available_columns:
-    agg_funcs["assignment_completion"] = "mean"
-if "lms_activity" in available_columns:
-    agg_funcs["lms_activity"] = "mean"
-if "progress_percentage" in available_columns:
-    agg_funcs["progress_percentage"] = "mean"
-if "expected_progress" in available_columns:
-    agg_funcs["expected_progress"] = "mean"
-if "required_credits" in available_columns:
-    agg_funcs["required_credits"] = "sum"
-if "completed_credits" in available_columns:
-    agg_funcs["completed_credits"] = "sum"
-
-aggregated = degree_df.groupby("student_id").agg(agg_funcs).reset_index()
-
-# Merge into student_df
-student_df = pd.merge(student_df, aggregated, on="student_id", how="left")
+# Merge data
+student_df = pd.merge(student_df, degree_df, on="student_id", how="left")
 
 # ---------------------
 # Clustering for Risk
 # ---------------------
 features = ["attendance_rate", "gpa", "assignment_completion", "lms_activity"]
-X = student_df[features].fillna(0)
+X = student_df[features]
 kmeans = KMeans(n_clusters=3, random_state=42)
 student_df["cluster"] = kmeans.fit_predict(X)
 
+# Ranking risk
 centroids = kmeans.cluster_centers_
 risk_scores = [
     (1 - c[0]) + (1 - c[1]/4.0) + (1 - c[2]) + (1 - c[3])
@@ -91,11 +68,14 @@ student_df["study_tips"] = student_df.apply(get_tips, axis=1)
 # Schedule Status
 # ---------------------
 def schedule_flag(row):
-    if pd.isnull(row["progress_percentage"]) or pd.isnull(row["expected_progress"]):
+    try:
+        if pd.isnull(row["progress_percentage"]) or pd.isnull(row["expected_progress"]):
+            return "Unknown"
+        if row["progress_percentage"] < row["expected_progress"] - 10:
+            return "Behind Schedule"
+        return "On Track"
+    except:
         return "Unknown"
-    if row["progress_percentage"] < row["expected_progress"] - 10:
-        return "Behind Schedule"
-    return "On Track"
 
 student_df["schedule_status"] = student_df.apply(schedule_flag, axis=1)
 
@@ -103,10 +83,11 @@ student_df["schedule_status"] = student_df.apply(schedule_flag, axis=1)
 # Streamlit UI
 # ---------------------
 st.set_page_config(page_title="Student Risk Dashboard", layout="wide")
-st.title("🎓 AI-Enhanced Student Risk Dashboard")
+
+st.markdown("## 🎓 AI-Enhanced Student Risk Dashboard")
 st.markdown("Track at-risk students, analyze academic progress, and intervene early.")
 
-# Sidebar Filters
+# Sidebar
 st.sidebar.title("🔍 Filter Options")
 role = st.sidebar.selectbox("Select Role", ["advisor", "chair"])
 user_id = st.sidebar.text_input(f"Enter your {role} ID")
@@ -118,19 +99,12 @@ if user_id:
         assigned_ids = mapping_df[mapping_df["program_chair_id"] == user_id]["student_id"].tolist()
 
     filtered_df = student_df[student_df["student_id"].isin(assigned_ids)]
-    filtered_courses_df = degree_df[degree_df["student_id"].isin(assigned_ids)]
 
     if filtered_df.empty:
         st.warning("⚠️ No students assigned to this ID.")
     else:
-        tab1, tab2, tab3, tab4 = st.tabs([
-            "📊 Overview", 
-            "📋 Student Table", 
-            "📚 Student Detail - Courses", 
-            "📥 Download"
-        ])
+        tab1, tab2, tab3 = st.tabs(["📊 Overview", "📋 Student Table", "📥 Download"])
 
-        # Overview
         with tab1:
             col1, col2, col3 = st.columns(3)
             col1.metric("🎯 Total Students", len(filtered_df))
@@ -138,39 +112,37 @@ if user_id:
             col3.metric("🕒 Behind Schedule", (filtered_df["schedule_status"] == "Behind Schedule").sum())
 
             st.markdown("### 📈 Risk Distribution")
-            fig = px.pie(filtered_df, names="predicted_risk", title="Risk Levels")
+            fig = px.pie(filtered_df, names="predicted_risk", title="Risk Levels", color="predicted_risk",
+                         color_discrete_map={"High": "red", "Medium": "orange", "Low": "green"})
             st.plotly_chart(fig, use_container_width=True)
 
             st.markdown("### 🗓️ Schedule Status")
+            sched_data = filtered_df["schedule_status"].value_counts().reset_index()
+            sched_data.columns = ["status", "count"]
             sched_fig = px.bar(
-                filtered_df["schedule_status"].value_counts().reset_index(),
-                x="index", y="schedule_status", color="index",
-                labels={"index": "Status", "schedule_status": "Count"},
+                sched_data,
+                x="status", y="count", color="status",
+                labels={"status": "Schedule Status", "count": "Count"},
                 color_discrete_map={"Behind Schedule": "red", "On Track": "green", "Unknown": "gray"}
             )
             st.plotly_chart(sched_fig, use_container_width=True)
 
-        # Student Summary Table
         with tab2:
-            st.markdown("### 📋 Student Summary Table")
+            st.markdown("### 📋 Student Details Table")
             display_cols = [
                 "student_id", "attendance_rate", "gpa", "assignment_completion", "lms_activity",
-                "predicted_risk", "risk_reason", "study_tips", "progress_percentage",
-                "expected_progress", "required_credits", "completed_credits", "schedule_status"
+                "predicted_risk", "risk_reason", "study_tips",
+                "progress_percentage", "expected_progress", "required_credits", "completed_credits", "schedule_status"
             ]
             st.dataframe(filtered_df[display_cols], use_container_width=True)
 
-        # Student Course Detail
         with tab3:
-            st.markdown("### 📚 Course-wise Student Performance")
-            st.dataframe(filtered_courses_df, use_container_width=True)
-
-        # Download
-        with tab4:
-            st.markdown("### 📥 Download Reports")
-            st.download_button("Download Student Summary", data=filtered_df.to_csv(index=False),
-                               file_name="student_summary.csv", mime="text/csv")
-            st.download_button("Download Course-wise Details", data=filtered_courses_df.to_csv(index=False),
-                               file_name="course_wise_detail.csv", mime="text/csv")
+            st.markdown("### 📥 Download Full Report")
+            st.download_button(
+                "Download CSV Report",
+                data=filtered_df.to_csv(index=False),
+                file_name="student_risk_report.csv",
+                mime="text/csv"
+            )
 else:
     st.info("ℹ️ Please enter your role and ID to continue.")
