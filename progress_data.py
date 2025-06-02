@@ -22,8 +22,11 @@ mapping_df["student_id"] = mapping_df["student_id"].astype(str)
 degree_df["student_id"] = degree_df["student_id"].astype(str)
 
 # ---------------------
-# Student-Level Aggregation from Course-Wise Data
+# Aggregation of Course-Level Data
 # ---------------------
+features = ["attendance_rate", "gpa", "assignment_completion", "lms_activity"]
+
+# Define aggregation functions
 agg_funcs = {
     "attendance_rate": "mean",
     "gpa": "mean",
@@ -35,32 +38,29 @@ agg_funcs = {
     "completed_credits": "sum"
 }
 
-# Only include aggregation functions for columns that exist
+# Filter only valid aggregations
 valid_agg_funcs = {k: v for k, v in agg_funcs.items() if k in degree_df.columns}
 aggregated = degree_df.groupby("student_id").agg(valid_agg_funcs).reset_index()
 
-# Merge with student_df
+# Merge aggregated data into student_df
 student_df = pd.merge(student_df, aggregated, on="student_id", how="left")
+
+# Ensure required features exist
+for col in features:
+    if col not in student_df.columns:
+        st.warning(f"⚠️ Column '{col}' not found. Filling with 0.")
+        student_df[col] = 0.0
 
 # ---------------------
 # Clustering for Risk
 # ---------------------
-features = ["attendance_rate", "gpa", "assignment_completion", "lms_activity"]
-missing_features = [f for f in features if f not in student_df.columns]
-
-if missing_features:
-    st.error(f"❌ Missing clustering features in student_df: {missing_features}. Please check your source data.")
-    st.stop()
-
 X = student_df[features].fillna(0)
 kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
 student_df["cluster"] = kmeans.fit_predict(X)
 
+# Risk scoring and cluster mapping
 centroids = kmeans.cluster_centers_
-risk_scores = [
-    (1 - c[0]) + (1 - c[1]/4.0) + (1 - c[2]) + (1 - c[3])
-    for c in centroids
-]
+risk_scores = [(1 - c[0]) + (1 - c[1]/4.0) + (1 - c[2]) + (1 - c[3]) for c in centroids]
 cluster_order = np.argsort(risk_scores)[::-1]
 cluster_map = {cluster: ["High", "Medium", "Low"][i] for i, cluster in enumerate(cluster_order)}
 student_df["predicted_risk"] = student_df["cluster"].map(cluster_map)
