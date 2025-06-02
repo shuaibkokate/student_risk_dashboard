@@ -1,6 +1,0 @@
-student_id,required_credits,completed_credits,progress_percentage,expected_progress
-1001,120,90,75,80
-1002,120,60,50,70
-1003,120,110,92,90
-1004,120,70,58,75
-1005,120,40,33,65
