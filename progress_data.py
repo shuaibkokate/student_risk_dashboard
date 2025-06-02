@@ -4,15 +4,15 @@ import numpy as np
 import plotly.express as px
 from sklearn.cluster import KMeans
 
-# ✅ Streamlit page config must come first
+# ✅ Must be first Streamlit command
 st.set_page_config(page_title="Student Risk Dashboard", layout="wide")
 
 # ---------------------
 # Load and Preprocess
 # ---------------------
-student_df = pd.read_csv("student_risk_predictions.csv")
-mapping_df = pd.read_csv("advisor_student_mapping.csv")
-degree_df = pd.read_csv("degree_progress_500.csv")
+student_df = pd.read_csv("sample_student_risk_predictions.csv")
+mapping_df = pd.read_csv("sample_advisor_student_mapping.csv")
+degree_df = pd.read_csv("sample_degree_progress_500.csv")
 
 # Normalize column names
 student_df.columns = student_df.columns.str.strip().str.lower()
@@ -25,10 +25,9 @@ mapping_df["student_id"] = mapping_df["student_id"].astype(str)
 degree_df["student_id"] = degree_df["student_id"].astype(str)
 
 # ---------------------
-# Aggregation of Course-Level Data
+# Aggregation
 # ---------------------
 features = ["attendance_rate", "gpa", "assignment_completion", "lms_activity"]
-
 agg_funcs = {
     "attendance_rate": "mean",
     "gpa": "mean",
@@ -39,20 +38,17 @@ agg_funcs = {
     "required_credits": "sum",
     "completed_credits": "sum"
 }
-
 valid_agg_funcs = {k: v for k, v in agg_funcs.items() if k in degree_df.columns}
 aggregated = degree_df.groupby("student_id").agg(valid_agg_funcs).reset_index()
-
 student_df = pd.merge(student_df, aggregated, on="student_id", how="left")
 
-# Ensure required features exist
 for col in features:
     if col not in student_df.columns:
         st.warning(f"⚠️ Column '{col}' not found. Filling with 0.")
         student_df[col] = 0.0
 
 # ---------------------
-# Clustering for Risk
+# Clustering
 # ---------------------
 X = student_df[features].fillna(0)
 kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
@@ -61,8 +57,15 @@ student_df["cluster"] = kmeans.fit_predict(X)
 centroids = kmeans.cluster_centers_
 risk_scores = [(1 - c[0]) + (1 - c[1]/4.0) + (1 - c[2]) + (1 - c[3]) for c in centroids]
 cluster_order = np.argsort(risk_scores)[::-1]
-cluster_map = {cluster: ["High", "Medium", "Low"][i] for i, cluster in enumerate(cluster_order)}
+risk_levels = ["High", "Medium", "Low"]
+cluster_map = {cluster: risk_levels[i] for i, cluster in enumerate(cluster_order)}
 student_df["predicted_risk"] = student_df["cluster"].map(cluster_map)
+
+# Cluster diagnostics
+st.sidebar.markdown("### 🔍 Cluster Distribution")
+cluster_counts = student_df["cluster"].value_counts().sort_index()
+for cluster_id, count in cluster_counts.items():
+    st.sidebar.write(f"Cluster {cluster_id}: {count} students → Risk: {cluster_map[cluster_id]}")
 
 # ---------------------
 # Reason and Tips
@@ -104,7 +107,6 @@ student_df["schedule_status"] = student_df.apply(schedule_flag, axis=1)
 st.title("🎓 AI-Enhanced Student Risk Dashboard")
 st.markdown("Track at-risk students, analyze academic progress, and intervene early.")
 
-# Sidebar Filters
 st.sidebar.title("🔍 Filter Options")
 role = st.sidebar.selectbox("Select Role", ["advisor", "chair"])
 user_id = st.sidebar.text_input(f"Enter your {role} ID")
@@ -125,21 +127,18 @@ if user_id:
             "📊 Overview", 
             "📋 Student Table", 
             "📚 Student Detail - Courses", 
-            "📥 Download"
+            "📅 Download"
         ])
 
-        # Overview
         with tab1:
             col1, col2, col3 = st.columns(3)
-
-            # Ensure all risk categories appear
             all_risks = ["High", "Medium", "Low"]
             risk_count = filtered_df["predicted_risk"].value_counts().reindex(all_risks, fill_value=0).reset_index()
             risk_count.columns = ["predicted_risk", "count"]
 
             col1.metric("🎯 Total Students", len(filtered_df))
             col2.metric("🔥 High Risk", risk_count[risk_count["predicted_risk"] == "High"]["count"].values[0])
-            col3.metric("🟡 Medium Risk", risk_count[risk_count["predicted_risk"] == "Medium"]["count"].values[0])
+            col3.metric("🔹 Medium Risk", risk_count[risk_count["predicted_risk"] == "Medium"]["count"].values[0])
             st.metric("✅ Low Risk", risk_count[risk_count["predicted_risk"] == "Low"]["count"].values[0])
 
             st.markdown("### 📈 Risk Distribution")
@@ -160,7 +159,6 @@ if user_id:
             )
             st.plotly_chart(sched_fig, use_container_width=True)
 
-        # Student Summary Table
         with tab2:
             st.markdown("### 📋 Student Summary Table")
             display_cols = [
@@ -170,14 +168,12 @@ if user_id:
             ]
             st.dataframe(filtered_df[display_cols], use_container_width=True)
 
-        # Student Course Detail
         with tab3:
             st.markdown("### 📚 Course-wise Student Performance")
-            st.dataframe(filtered_courses_df, use_container_width=True)
+            st.dataframe(filtered_courses_df, use_container_width=True, height=400)
 
-        # Download
         with tab4:
-            st.markdown("### 📥 Download Reports")
+            st.markdown("### 📅 Download Reports")
             st.download_button("Download Student Summary", data=filtered_df.to_csv(index=False),
                                file_name="student_summary.csv", mime="text/csv")
             st.download_button("Download Course-wise Details", data=filtered_courses_df.to_csv(index=False),
