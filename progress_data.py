@@ -42,7 +42,6 @@ valid_agg_funcs = {k: v for k, v in agg_funcs.items() if k in degree_df.columns}
 aggregated = degree_df.groupby("student_id").agg(valid_agg_funcs).reset_index()
 student_df = pd.merge(student_df.drop(columns=features, errors='ignore'), aggregated, on="student_id", how="left")
 
-# Fill missing values with column means
 for col in features:
     if col not in student_df.columns:
         st.warning(f"⚠️ Column '{col}' not found. Filling with 0.")
@@ -60,12 +59,11 @@ threshold_assignment = st.sidebar.slider("Minimum Assignment Completion", 0.0, 1
 threshold_lms = st.sidebar.slider("Minimum LMS Activity", 0.0, 1.0, 0.5, 0.01)
 
 # ---------------------
-# Clustering
+# Clustering for Students
 # ---------------------
 X = student_df[features].fillna(0)
 kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
 student_df["cluster"] = kmeans.fit_predict(X)
-
 centroids = kmeans.cluster_centers_
 risk_scores = [(1 - c[0]) + (1 - c[1]/4.0) + (1 - c[2]) + (1 - c[3]) for c in centroids]
 cluster_order = np.argsort(risk_scores)[::-1]
@@ -73,11 +71,22 @@ risk_levels = ["High", "Medium", "Low"]
 cluster_map = {cluster: risk_levels[i] for i, cluster in enumerate(cluster_order)}
 student_df["predicted_risk"] = student_df["cluster"].map(cluster_map)
 
-# Cluster diagnostics
-st.sidebar.markdown("### 🔍 Cluster Distribution")
-cluster_counts = student_df["cluster"].value_counts().sort_index()
-for cluster_id, count in cluster_counts.items():
-    st.sidebar.write(f"Cluster {cluster_id}: {count} students → Risk: {cluster_map[cluster_id]}")
+# ---------------------
+# Clustering for Courses
+# ---------------------
+for col in features:
+    if col not in degree_df.columns:
+        degree_df[col] = np.nan
+    degree_df[col] = degree_df[col].fillna(degree_df[col].mean())
+
+X_course = degree_df[features].fillna(0)
+kmeans_course = KMeans(n_clusters=3, random_state=42, n_init=10)
+degree_df["cluster"] = kmeans_course.fit_predict(X_course)
+centroids_course = kmeans_course.cluster_centers_
+risk_scores_course = [(1 - c[0]) + (1 - c[1]/4.0) + (1 - c[2]) + (1 - c[3]) for c in centroids_course]
+cluster_order_course = np.argsort(risk_scores_course)[::-1]
+cluster_map_course = {cluster: risk_levels[i] for i, cluster in enumerate(cluster_order_course)}
+degree_df["predicted_risk"] = degree_df["cluster"].map(cluster_map_course)
 
 # ---------------------
 # Reason and Tips
@@ -100,6 +109,8 @@ def get_tips(row):
 
 student_df["risk_reason"] = student_df.apply(get_reason, axis=1)
 student_df["study_tips"] = student_df.apply(get_tips, axis=1)
+degree_df["risk_reason"] = degree_df.apply(get_reason, axis=1)
+degree_df["study_tips"] = degree_df.apply(get_tips, axis=1)
 
 # ---------------------
 # Schedule Status
@@ -114,7 +125,7 @@ def schedule_flag(row):
 student_df["schedule_status"] = student_df.apply(schedule_flag, axis=1)
 
 # ---------------------
-# Streamlit UI
+# Display Setup
 # ---------------------
 st.title("🎓 AI-Enhanced Student Risk Dashboard")
 st.markdown("Track at-risk students, analyze academic progress, and intervene early.")
@@ -162,20 +173,6 @@ if user_id:
             )
             st.plotly_chart(bar_fig, use_container_width=True)
 
-            st.markdown("### 🗓️ Schedule Status")
-            sched_df = filtered_df["schedule_status"].value_counts().reset_index()
-            sched_df.columns = ["status", "count"]
-            sched_fig = px.bar(
-                sched_df,
-                x="status", y="count", color="status",
-                color_discrete_map={
-                    "Behind Schedule": "red", 
-                    "On Track": "green", 
-                    "Unknown": "gray"
-                }
-            )
-            st.plotly_chart(sched_fig, use_container_width=True)
-
         with tab2:
             st.markdown("### 📋 Student Summary Table")
             display_cols = [
@@ -190,19 +187,12 @@ if user_id:
             st.markdown("### 📚 Course-wise Performance for Selected Student")
             selected_student = st.selectbox("Select a student to view course details:", filtered_df["student_id"].unique())
             selected_course_df = filtered_courses_df[filtered_courses_df["student_id"] == selected_student]
+            course_cols = ["course_name", "attendance_rate", "gpa", "assignment_completion", "lms_activity", "predicted_risk", "risk_reason", "study_tips"]
+            existing_course_cols = [col for col in course_cols if col in selected_course_df.columns]
             if not selected_course_df.empty:
-                st.dataframe(selected_course_df, use_container_width=True, height=300)
+                st.dataframe(selected_course_df[existing_course_cols], use_container_width=True, height=300)
             else:
                 st.info("No course data available for this student.")
-
-            st.markdown("### 📚 Course-wise Performance for Selected Student")
-            selected_course_df = filtered_courses_df[filtered_courses_df["student_id"] == selected_student]
-            if not selected_course_df.empty:
-                st.dataframe(selected_course_df, use_container_width=True, height=300)
-            else:
-                st.info("No course data available for this student.")
-
-        
 
         with tab4:
             st.markdown("### 📅 Download Reports")
