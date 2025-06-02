@@ -7,7 +7,7 @@ from sklearn.cluster import KMeans
 # ---------------------
 # Load and Preprocess
 # ---------------------
-student_df = pd.read_csv("student_risk_predictions.csv")
+student_df = pd.read_csv("student_data_500.csv")
 mapping_df = pd.read_csv("advisor_student_mapping.csv")
 degree_df = pd.read_csv("degree_progress_500.csv")
 
@@ -22,19 +22,7 @@ mapping_df["student_id"] = mapping_df["student_id"].astype(str)
 degree_df["student_id"] = degree_df["student_id"].astype(str)
 
 # ---------------------
-# Validate Required Columns in degree_df
-# ---------------------
-required_cols = [
-    "attendance_rate", "gpa", "assignment_completion", "lms_activity",
-    "progress_percentage", "expected_progress", "required_credits", "completed_credits"
-]
-missing_cols = [col for col in required_cols if col not in degree_df.columns]
-if missing_cols:
-    st.error(f"Missing required columns in degree data: {missing_cols}")
-    st.stop()
-
-# ---------------------
-# Student-Level Aggregation
+# Student-Level Aggregation from Course-Wise Data
 # ---------------------
 agg_funcs = {
     "attendance_rate": "mean",
@@ -47,32 +35,33 @@ agg_funcs = {
     "completed_credits": "sum"
 }
 aggregated = degree_df.groupby("student_id").agg(agg_funcs).reset_index()
+
+# Merge into student_df
 student_df = pd.merge(student_df, aggregated, on="student_id", how="left")
 
 # ---------------------
-# Clustering for Risk Prediction
+# Clustering for Risk
 # ---------------------
 features = ["attendance_rate", "gpa", "assignment_completion", "lms_activity"]
-missing_features = [col for col in features if col not in student_df.columns]
+missing_features = [f for f in features if f not in student_df.columns]
 if missing_features:
-    st.error(f"Missing clustering features in student_df: {missing_features}")
-    st.stop()
+    raise ValueError(f"Missing clustering features in student_df: {missing_features}")
 
 X = student_df[features].fillna(0)
-kmeans = KMeans(n_clusters=3, random_state=42)
+kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
 student_df["cluster"] = kmeans.fit_predict(X)
 
-# Assign cluster risk levels based on heuristics
 centroids = kmeans.cluster_centers_
 risk_scores = [
-    (1 - c[0]) + (1 - c[1]/4.0) + (1 - c[2]) + (1 - c[3]) for c in centroids
+    (1 - c[0]) + (1 - c[1]/4.0) + (1 - c[2]) + (1 - c[3])
+    for c in centroids
 ]
 cluster_order = np.argsort(risk_scores)[::-1]
 cluster_map = {cluster: ["High", "Medium", "Low"][i] for i, cluster in enumerate(cluster_order)}
 student_df["predicted_risk"] = student_df["cluster"].map(cluster_map)
 
 # ---------------------
-# Risk Reasons and Study Tips
+# Reason and Tips
 # ---------------------
 def get_reason(row):
     reasons = []
@@ -94,7 +83,7 @@ student_df["risk_reason"] = student_df.apply(get_reason, axis=1)
 student_df["study_tips"] = student_df.apply(get_tips, axis=1)
 
 # ---------------------
-# Schedule Status Evaluation
+# Schedule Status
 # ---------------------
 def schedule_flag(row):
     if pd.isnull(row["progress_percentage"]) or pd.isnull(row["expected_progress"]):
@@ -106,13 +95,13 @@ def schedule_flag(row):
 student_df["schedule_status"] = student_df.apply(schedule_flag, axis=1)
 
 # ---------------------
-# Streamlit Dashboard
+# Streamlit UI
 # ---------------------
 st.set_page_config(page_title="Student Risk Dashboard", layout="wide")
 st.title("🎓 AI-Enhanced Student Risk Dashboard")
 st.markdown("Track at-risk students, analyze academic progress, and intervene early.")
 
-# Sidebar filters
+# Sidebar Filters
 st.sidebar.title("🔍 Filter Options")
 role = st.sidebar.selectbox("Select Role", ["advisor", "chair"])
 user_id = st.sidebar.text_input(f"Enter your {role} ID")
@@ -136,7 +125,7 @@ if user_id:
             "📥 Download"
         ])
 
-        # Overview Tab
+        # Overview
         with tab1:
             col1, col2, col3 = st.columns(3)
             col1.metric("🎯 Total Students", len(filtered_df))
@@ -148,10 +137,11 @@ if user_id:
             st.plotly_chart(fig, use_container_width=True)
 
             st.markdown("### 🗓️ Schedule Status")
-            status_counts = filtered_df["schedule_status"].value_counts().reset_index()
-            status_counts.columns = ["Status", "Count"]
+            sched_df = filtered_df["schedule_status"].value_counts().reset_index()
+            sched_df.columns = ["status", "count"]
             sched_fig = px.bar(
-                status_counts, x="Status", y="Count", color="Status",
+                sched_df,
+                x="status", y="count", color="status",
                 color_discrete_map={
                     "Behind Schedule": "red", 
                     "On Track": "green", 
@@ -160,7 +150,7 @@ if user_id:
             )
             st.plotly_chart(sched_fig, use_container_width=True)
 
-        # Student Table Tab
+        # Student Summary Table
         with tab2:
             st.markdown("### 📋 Student Summary Table")
             display_cols = [
@@ -170,12 +160,12 @@ if user_id:
             ]
             st.dataframe(filtered_df[display_cols], use_container_width=True)
 
-        # Course Detail Tab
+        # Student Course Detail
         with tab3:
             st.markdown("### 📚 Course-wise Student Performance")
             st.dataframe(filtered_courses_df, use_container_width=True)
 
-        # Download Tab
+        # Download
         with tab4:
             st.markdown("### 📥 Download Reports")
             st.download_button("Download Student Summary", data=filtered_df.to_csv(index=False),
