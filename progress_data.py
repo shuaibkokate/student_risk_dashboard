@@ -10,9 +10,9 @@ st.set_page_config(page_title="Student Risk Dashboard", layout="wide")
 # ---------------------
 # Load and Preprocess
 # ---------------------
-student_df = pd.read_csv("sample_student_risk_predictions.csv")
-mapping_df = pd.read_csv("sample_advisor_student_mapping.csv")
-degree_df = pd.read_csv("sample_degree_progress_500.csv")
+student_df = pd.read_csv("student_risk_predictions.csv")
+mapping_df = pd.read_csv("advisor_student_mapping.csv")
+degree_df = pd.read_csv("degree_progress_500.csv")
 
 # Normalize column names
 student_df.columns = student_df.columns.str.strip().str.lower()
@@ -40,12 +40,24 @@ agg_funcs = {
 }
 valid_agg_funcs = {k: v for k, v in agg_funcs.items() if k in degree_df.columns}
 aggregated = degree_df.groupby("student_id").agg(valid_agg_funcs).reset_index()
-student_df = pd.merge(student_df, aggregated, on="student_id", how="left")
+student_df = pd.merge(student_df.drop(columns=features, errors='ignore'), aggregated, on="student_id", how="left")
 
+# Fill missing values with column means
 for col in features:
     if col not in student_df.columns:
         st.warning(f"⚠️ Column '{col}' not found. Filling with 0.")
         student_df[col] = 0.0
+    else:
+        student_df[col] = student_df[col].fillna(student_df[col].mean())
+
+# ---------------------
+# Custom Thresholds
+# ---------------------
+st.sidebar.markdown("### 🔢 Custom Risk Thresholds")
+threshold_attendance = st.sidebar.slider("Minimum Attendance Rate", 0.0, 1.0, 0.75, 0.01)
+threshold_gpa = st.sidebar.slider("Minimum GPA", 0.0, 4.0, 2.0, 0.1)
+threshold_assignment = st.sidebar.slider("Minimum Assignment Completion", 0.0, 1.0, 0.7, 0.01)
+threshold_lms = st.sidebar.slider("Minimum LMS Activity", 0.0, 1.0, 0.5, 0.01)
 
 # ---------------------
 # Clustering
@@ -72,18 +84,18 @@ for cluster_id, count in cluster_counts.items():
 # ---------------------
 def get_reason(row):
     reasons = []
-    if row["attendance_rate"] < 0.75: reasons.append("Low attendance")
-    if row["gpa"] < 2.0: reasons.append("Low GPA")
-    if row["assignment_completion"] < 0.7: reasons.append("Low assignment completion")
-    if row["lms_activity"] < 0.5: reasons.append("Low LMS activity")
+    if row["attendance_rate"] < threshold_attendance: reasons.append("Low attendance")
+    if row["gpa"] < threshold_gpa: reasons.append("Low GPA")
+    if row["assignment_completion"] < threshold_assignment: reasons.append("Low assignment completion")
+    if row["lms_activity"] < threshold_lms: reasons.append("Low LMS activity")
     return ", ".join(reasons) or "No major concerns"
 
 def get_tips(row):
     tips = []
-    if row["gpa"] < 2.0: tips.append("Attend tutoring.")
-    if row["attendance_rate"] < 0.75: tips.append("Attend classes regularly.")
-    if row["assignment_completion"] < 0.7: tips.append("Submit assignments.")
-    if row["lms_activity"] < 0.5: tips.append("Increase LMS engagement.")
+    if row["gpa"] < threshold_gpa: tips.append("Attend tutoring.")
+    if row["attendance_rate"] < threshold_attendance: tips.append("Attend classes regularly.")
+    if row["assignment_completion"] < threshold_assignment: tips.append("Submit assignments.")
+    if row["lms_activity"] < threshold_lms: tips.append("Increase LMS engagement.")
     return " ".join(tips) or "Keep up the good work!"
 
 student_df["risk_reason"] = student_df.apply(get_reason, axis=1)
@@ -123,12 +135,7 @@ if user_id:
     if filtered_df.empty:
         st.warning("⚠️ No students assigned to this ID.")
     else:
-        tab1, tab2, tab3, tab4 = st.tabs([
-            "📊 Overview", 
-            "📋 Student Table", 
-            "📚 Student Detail - Courses", 
-            "📅 Download"
-        ])
+        tab1, tab2, tab4 = st.tabs(["📊 Overview", "📋 Student Table", "📥 Download"])
 
         with tab1:
             col1, col2, col3 = st.columns(3)
@@ -144,6 +151,16 @@ if user_id:
             st.markdown("### 📈 Risk Distribution")
             fig = px.pie(risk_count, names="predicted_risk", values="count", title="Risk Levels")
             st.plotly_chart(fig, use_container_width=True)
+
+            st.markdown("### 📊 Average GPA by Risk Category")
+            bar_fig = px.bar(
+                filtered_df.groupby("predicted_risk")["gpa"].mean().reindex(["High", "Medium", "Low"]).reset_index(),
+                x="predicted_risk", y="gpa", color="predicted_risk",
+                title="Average GPA for Each Risk Category",
+                labels={"predicted_risk": "Risk Category", "gpa": "Average GPA"},
+                color_discrete_map={"High": "red", "Medium": "orange", "Low": "green"}
+            )
+            st.plotly_chart(bar_fig, use_container_width=True)
 
             st.markdown("### 🗓️ Schedule Status")
             sched_df = filtered_df["schedule_status"].value_counts().reset_index()
@@ -166,11 +183,26 @@ if user_id:
                 "predicted_risk", "risk_reason", "study_tips", "progress_percentage",
                 "expected_progress", "required_credits", "completed_credits", "schedule_status"
             ]
-            st.dataframe(filtered_df[display_cols], use_container_width=True)
+            existing_cols = [col for col in display_cols if col in filtered_df.columns]
+            summary_df = filtered_df[existing_cols]
+            st.dataframe(summary_df, use_container_width=True)
 
-        with tab3:
-            st.markdown("### 📚 Course-wise Student Performance")
-            st.dataframe(filtered_courses_df, use_container_width=True, height=400)
+            st.markdown("### 📚 Course-wise Performance for Selected Student")
+            selected_student = st.selectbox("Select a student to view course details:", filtered_df["student_id"].unique())
+            selected_course_df = filtered_courses_df[filtered_courses_df["student_id"] == selected_student]
+            if not selected_course_df.empty:
+                st.dataframe(selected_course_df, use_container_width=True, height=300)
+            else:
+                st.info("No course data available for this student.")
+
+            st.markdown("### 📚 Course-wise Performance for Selected Student")
+            selected_course_df = filtered_courses_df[filtered_courses_df["student_id"] == selected_student]
+            if not selected_course_df.empty:
+                st.dataframe(selected_course_df, use_container_width=True, height=300)
+            else:
+                st.info("No course data available for this student.")
+
+        
 
         with tab4:
             st.markdown("### 📅 Download Reports")
