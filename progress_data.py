@@ -34,28 +34,17 @@ agg_funcs = {
     "required_credits": "sum",
     "completed_credits": "sum"
 }
-
-# Check if all required columns exist in degree_df
-missing_cols = [col for col in agg_funcs.keys() if col not in degree_df.columns]
-for col in missing_cols:
-    print(f"⚠️ Adding missing column '{col}' to degree_df with default 0.")
-    degree_df[col] = 0.0
-
 aggregated = degree_df.groupby("student_id").agg(agg_funcs).reset_index()
+
+# Merge into student_df
 student_df = pd.merge(student_df, aggregated, on="student_id", how="left")
 
 # ---------------------
 # Clustering for Risk
 # ---------------------
-required_features = ["attendance_rate", "gpa", "assignment_completion", "lms_activity"]
-for col in required_features:
-    if col not in student_df.columns:
-        print(f"⚠️ Adding missing feature column '{col}' to student_df with default 0.")
-        student_df[col] = 0.0
-
-X = student_df[required_features].fillna(0)
-
-kmeans = KMeans(n_clusters=3, random_state=42, n_init='auto')
+features = ["attendance_rate", "gpa", "assignment_completion", "lms_activity"]
+X = student_df[features].fillna(0)
+kmeans = KMeans(n_clusters=3, random_state=42)
 student_df["cluster"] = kmeans.fit_predict(X)
 
 centroids = kmeans.cluster_centers_
@@ -132,6 +121,7 @@ if user_id:
             "📥 Download"
         ])
 
+        # Overview
         with tab1:
             col1, col2, col3 = st.columns(3)
             col1.metric("🎯 Total Students", len(filtered_df))
@@ -143,14 +133,27 @@ if user_id:
             st.plotly_chart(fig, use_container_width=True)
 
             st.markdown("### 🗓️ Schedule Status")
+            schedule_counts = (
+                filtered_df["schedule_status"]
+                .value_counts()
+                .reset_index()
+                .rename(columns={"index": "Status", "schedule_status": "Count"})
+            )
+
             sched_fig = px.bar(
-                filtered_df["schedule_status"].value_counts().reset_index(),
-                x="index", y="schedule_status", color="index",
-                labels={"index": "Status", "schedule_status": "Count"},
-                color_discrete_map={"Behind Schedule": "red", "On Track": "green", "Unknown": "gray"}
+                schedule_counts,
+                x="Status", y="Count", color="Status",
+                labels={"Status": "Schedule Status", "Count": "Number of Students"},
+                color_discrete_map={
+                    "Behind Schedule": "red",
+                    "On Track": "green",
+                    "Unknown": "gray"
+                },
+                title="Schedule Status Distribution"
             )
             st.plotly_chart(sched_fig, use_container_width=True)
 
+        # Student Summary Table
         with tab2:
             st.markdown("### 📋 Student Summary Table")
             display_cols = [
@@ -160,10 +163,12 @@ if user_id:
             ]
             st.dataframe(filtered_df[display_cols], use_container_width=True)
 
+        # Student Course Detail
         with tab3:
             st.markdown("### 📚 Course-wise Student Performance")
             st.dataframe(filtered_courses_df, use_container_width=True)
 
+        # Download
         with tab4:
             st.markdown("### 📥 Download Reports")
             st.download_button("Download Student Summary", data=filtered_df.to_csv(index=False),
