@@ -24,6 +24,11 @@ mapping_df["student_id"] = mapping_df["student_id"].astype(str)
 # Merge data
 student_df = pd.merge(student_df, degree_df, on="student_id", how="left")
 
+# Fill missing columns if needed
+for col in ["progress_percentage", "expected_progress", "required_credits", "completed_credits"]:
+    if col not in student_df.columns:
+        student_df[col] = np.nan
+
 # ---------------------
 # Clustering for Risk
 # ---------------------
@@ -68,14 +73,11 @@ student_df["study_tips"] = student_df.apply(get_tips, axis=1)
 # Schedule Status
 # ---------------------
 def schedule_flag(row):
-    try:
-        if pd.isnull(row["progress_percentage"]) or pd.isnull(row["expected_progress"]):
-            return "Unknown"
-        if row["progress_percentage"] < row["expected_progress"] - 10:
-            return "Behind Schedule"
-        return "On Track"
-    except:
+    if pd.isnull(row["progress_percentage"]) or pd.isnull(row["expected_progress"]):
         return "Unknown"
+    if row["progress_percentage"] < row["expected_progress"] - 10:
+        return "Behind Schedule"
+    return "On Track"
 
 student_df["schedule_status"] = student_df.apply(schedule_flag, axis=1)
 
@@ -103,7 +105,7 @@ if user_id:
     if filtered_df.empty:
         st.warning("⚠️ No students assigned to this ID.")
     else:
-        tab1, tab2, tab3 = st.tabs(["📊 Overview", "📋 Student Table", "📥 Download"])
+        tab1, tab2, tab3, tab4 = st.tabs(["📊 Overview", "📋 Student Table", "📘 Student Detail Courses", "📥 Download"])
 
         with tab1:
             col1, col2, col3 = st.columns(3)
@@ -117,12 +119,10 @@ if user_id:
             st.plotly_chart(fig, use_container_width=True)
 
             st.markdown("### 🗓️ Schedule Status")
-            sched_data = filtered_df["schedule_status"].value_counts().reset_index()
-            sched_data.columns = ["status", "count"]
             sched_fig = px.bar(
-                sched_data,
-                x="status", y="count", color="status",
-                labels={"status": "Schedule Status", "count": "Count"},
+                filtered_df["schedule_status"].value_counts().reset_index(),
+                x="index", y="schedule_status", color="index",
+                labels={"index": "Status", "schedule_status": "Count"},
                 color_discrete_map={"Behind Schedule": "red", "On Track": "green", "Unknown": "gray"}
             )
             st.plotly_chart(sched_fig, use_container_width=True)
@@ -137,6 +137,11 @@ if user_id:
             st.dataframe(filtered_df[display_cols], use_container_width=True)
 
         with tab3:
+            st.markdown("### 📘 Detailed Course Progress for Students")
+            course_df = degree_df[degree_df["student_id"].isin(assigned_ids)]
+            st.dataframe(course_df, use_container_width=True)
+
+        with tab4:
             st.markdown("### 📥 Download Full Report")
             st.download_button(
                 "Download CSV Report",
