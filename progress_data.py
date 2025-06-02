@@ -4,6 +4,9 @@ import numpy as np
 import plotly.express as px
 from sklearn.cluster import KMeans
 
+# ✅ Must be the first Streamlit command
+st.set_page_config(page_title="Student Risk Dashboard", layout="wide")
+
 # ---------------------
 # Load and Preprocess
 # ---------------------
@@ -102,7 +105,6 @@ student_df["schedule_status"] = student_df.apply(schedule_flag, axis=1)
 # ---------------------
 # Streamlit UI
 # ---------------------
-st.set_page_config(page_title="Student Risk Dashboard", layout="wide")
 st.title("🎓 AI-Enhanced Student Risk Dashboard")
 st.markdown("Track at-risk students, analyze academic progress, and intervene early.")
 
