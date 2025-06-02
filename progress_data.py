@@ -9,7 +9,7 @@ from sklearn.cluster import KMeans
 # ---------------------
 student_df = pd.read_csv("student_risk_predictions.csv")
 mapping_df = pd.read_csv("advisor_student_mapping.csv")
-degree_df = pd.read_csv("degree_progress_500.csv")
+degree_df = pd.read_csv("degree_progress.csv")
 
 # Normalize column names
 student_df.columns = student_df.columns.str.strip().str.lower()
