@@ -1,0 +1,5 @@
+course_id,course_title,course_description,learning_outcomes,important_topics
+CS101,Introduction to Programming,"This course introduces the basics of programming using Python.","Understand variables, control structures, data types, and functions.","Variables and Data Types; Loops; Conditional Statements; Functions; Lists and Dictionaries"
+MATH201,Calculus I,"Fundamental concepts of calculus including limits, derivatives, and integrals.","Solve limits, derivatives, and integrals problems.","Limits; Derivatives; Integration; Chain Rule; Fundamental Theorem of Calculus"
+ENG301,Academic Writing,"Develop academic writing skills for essays, research, and reports.","Structure arguments, use citations, avoid plagiarism.","Thesis Statement; Argumentation; Citation Styles; Avoiding Plagiarism; Paragraph Structure"
+BIO110,General Biology,"Overview of biological principles from cells to ecosystems.","Explain cellular processes and ecosystem interactions.","Cell Structure; Photosynthesis; Genetics; Evolution; Ecosystems"
