@@ -100,6 +100,17 @@ if user_id:
         col3.metric("🔹 Medium Risk", summary[summary["Risk"] == "Medium"]["Count"].values[0])
         st.metric("✅ Low Risk", summary[summary["Risk"] == "Low"]["Count"].values[0])
 
+        st.markdown("### 📊 Risk Category Distribution (Bar Chart)")
+        bar_fig = px.bar(
+            summary,
+            x="Risk",
+            y="Count",
+            color="Risk",
+            title="Risk Category Distribution",
+            text_auto=True
+        )
+        st.plotly_chart(bar_fig, use_container_width=True)
+
         st.markdown("### 📈 GPA vs Attendance (Risk Colored)")
         fig = px.scatter(
             student_df,
