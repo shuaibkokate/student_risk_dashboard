@@ -4,7 +4,6 @@ import numpy as np
 import plotly.express as px
 from sklearn.cluster import KMeans
 
-# ✅ Must be first Streamlit command
 st.set_page_config(page_title="Student Risk Dashboard", layout="wide")
 
 # ---------------------
@@ -14,40 +13,19 @@ student_df = pd.read_csv("student_risk_predictions.csv")
 mapping_df = pd.read_csv("advisor_student_mapping.csv")
 degree_df = pd.read_csv("degree_progress_500.csv")
 
-# Normalize column names
 student_df.columns = student_df.columns.str.strip().str.lower()
 mapping_df.columns = mapping_df.columns.str.strip().str.lower()
 degree_df.columns = degree_df.columns.str.strip().str.lower()
 
-# Ensure IDs are strings
 student_df["student_id"] = student_df["student_id"].astype(str)
 mapping_df["student_id"] = mapping_df["student_id"].astype(str)
 degree_df["student_id"] = degree_df["student_id"].astype(str)
 
-# ---------------------
-# Aggregation
-# ---------------------
-features = ["attendance_rate", "gpa", "assignment_completion", "lms_activity"]
-agg_funcs = {
-    "attendance_rate": "mean",
-    "gpa": "mean",
-    "assignment_completion": "mean",
-    "lms_activity": "mean",
-    "progress_percentage": "mean",
-    "expected_progress": "mean",
-    "required_credits": "sum",
-    "completed_credits": "sum"
-}
-valid_agg_funcs = {k: v for k, v in agg_funcs.items() if k in degree_df.columns}
-aggregated = degree_df.groupby("student_id").agg(valid_agg_funcs).reset_index()
-student_df = pd.merge(student_df.drop(columns=features, errors='ignore'), aggregated, on="student_id", how="left")
+features = ["attendance_rate", "gpa", "assignment_completion"]
 
 for col in features:
-    if col not in student_df.columns:
-        st.warning(f"⚠️ Column '{col}' not found. Filling with 0.")
-        student_df[col] = 0.0
-    else:
-        student_df[col] = student_df[col].fillna(student_df[col].mean())
+    student_df[col] = student_df[col].fillna(student_df[col].mean())
+    degree_df[col] = degree_df[col].fillna(degree_df[col].mean())
 
 # ---------------------
 # Custom Thresholds
@@ -56,7 +34,6 @@ st.sidebar.markdown("### 🔢 Custom Risk Thresholds")
 threshold_attendance = st.sidebar.slider("Minimum Attendance Rate", 0.0, 1.0, 0.75, 0.01)
 threshold_gpa = st.sidebar.slider("Minimum GPA", 0.0, 4.0, 2.0, 0.1)
 threshold_assignment = st.sidebar.slider("Minimum Assignment Completion", 0.0, 1.0, 0.7, 0.01)
-threshold_lms = st.sidebar.slider("Minimum LMS Activity", 0.0, 1.0, 0.5, 0.01)
 
 # ---------------------
 # Clustering for Students
@@ -64,29 +41,27 @@ threshold_lms = st.sidebar.slider("Minimum LMS Activity", 0.0, 1.0, 0.5, 0.01)
 X = student_df[features].fillna(0)
 kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
 student_df["cluster"] = kmeans.fit_predict(X)
-centroids = kmeans.cluster_centers_
-risk_scores = [(1 - c[0]) + (1 - c[1]/4.0) + (1 - c[2]) + (1 - c[3]) for c in centroids]
-cluster_order = np.argsort(risk_scores)[::-1]
-risk_levels = ["High", "Medium", "Low"]
-cluster_map = {cluster: risk_levels[i] for i, cluster in enumerate(cluster_order)}
-student_df["predicted_risk"] = student_df["cluster"].map(cluster_map)
+risk_scores = X.apply(lambda row: (1 - row["attendance_rate"]) + (1 - row["gpa"]/4.0) + (1 - row["assignment_completion"]), axis=1)
+quantiles = risk_scores.quantile([0.33, 0.66])
+def map_risk(score):
+    if score >= quantiles[0.66]: return "High"
+    elif score >= quantiles[0.33]: return "Medium"
+    else: return "Low"
+student_df["predicted_risk"] = risk_scores.apply(map_risk)
 
 # ---------------------
 # Clustering for Courses
 # ---------------------
-for col in features:
-    if col not in degree_df.columns:
-        degree_df[col] = np.nan
-    degree_df[col] = degree_df[col].fillna(degree_df[col].mean())
-
 X_course = degree_df[features].fillna(0)
 kmeans_course = KMeans(n_clusters=3, random_state=42, n_init=10)
 degree_df["cluster"] = kmeans_course.fit_predict(X_course)
-centroids_course = kmeans_course.cluster_centers_
-risk_scores_course = [(1 - c[0]) + (1 - c[1]/4.0) + (1 - c[2]) + (1 - c[3]) for c in centroids_course]
-cluster_order_course = np.argsort(risk_scores_course)[::-1]
-cluster_map_course = {cluster: risk_levels[i] for i, cluster in enumerate(cluster_order_course)}
-degree_df["predicted_risk"] = degree_df["cluster"].map(cluster_map_course)
+risk_scores_course = X_course.apply(lambda row: (1 - row["attendance_rate"]) + (1 - row["gpa"]/4.0) + (1 - row["assignment_completion"]), axis=1)
+quantiles_course = risk_scores_course.quantile([0.33, 0.66])
+def map_course_risk(score):
+    if score >= quantiles_course[0.66]: return "High"
+    elif score >= quantiles_course[0.33]: return "Medium"
+    else: return "Low"
+degree_df["predicted_risk"] = risk_scores_course.apply(map_course_risk)
 
 # ---------------------
 # Reason and Tips
@@ -96,7 +71,6 @@ def get_reason(row):
     if row["attendance_rate"] < threshold_attendance: reasons.append("Low attendance")
     if row["gpa"] < threshold_gpa: reasons.append("Low GPA")
     if row["assignment_completion"] < threshold_assignment: reasons.append("Low assignment completion")
-    if row["lms_activity"] < threshold_lms: reasons.append("Low LMS activity")
     return ", ".join(reasons) or "No major concerns"
 
 def get_tips(row):
@@ -104,7 +78,6 @@ def get_tips(row):
     if row["gpa"] < threshold_gpa: tips.append("Attend tutoring.")
     if row["attendance_rate"] < threshold_attendance: tips.append("Attend classes regularly.")
     if row["assignment_completion"] < threshold_assignment: tips.append("Submit assignments.")
-    if row["lms_activity"] < threshold_lms: tips.append("Increase LMS engagement.")
     return " ".join(tips) or "Keep up the good work!"
 
 student_df["risk_reason"] = student_df.apply(get_reason, axis=1)
@@ -127,10 +100,10 @@ student_df["schedule_status"] = student_df.apply(schedule_flag, axis=1)
 # ---------------------
 # Display Setup
 # ---------------------
-st.title("🎓 AI-Enhanced Student Risk Dashboard")
+st.title("AI-Enhanced Student Risk Dashboard")
 st.markdown("Track at-risk students, analyze academic progress, and intervene early.")
 
-st.sidebar.title("🔍 Filter Options")
+st.sidebar.title("Filter Options")
 role = st.sidebar.selectbox("Select Role", ["advisor", "chair"])
 user_id = st.sidebar.text_input(f"Enter your {role} ID")
 
@@ -146,59 +119,41 @@ if user_id:
     if filtered_df.empty:
         st.warning("⚠️ No students assigned to this ID.")
     else:
-        tab1, tab2, tab4 = st.tabs(["📊 Overview", "📋 Student Table", "📥 Download"])
+        tab1, tab2, tab3 = st.tabs(["Overview", "Student Table", "Download"])
 
         with tab1:
             col1, col2, col3 = st.columns(3)
             all_risks = ["High", "Medium", "Low"]
-            risk_count = filtered_df["predicted_risk"].value_counts().reindex(all_risks, fill_value=0).reset_index()
-            risk_count.columns = ["predicted_risk", "count"]
+            risk_summary = filtered_df["predicted_risk"].value_counts().reindex(all_risks, fill_value=0).reset_index()
+            risk_summary.columns = ["risk_level", "count"]
 
-            col1.metric("🎯 Total Students", len(filtered_df))
-            col2.metric("🔥 High Risk", risk_count[risk_count["predicted_risk"] == "High"]["count"].values[0])
-            col3.metric("🔹 Medium Risk", risk_count[risk_count["predicted_risk"] == "Medium"]["count"].values[0])
-            st.metric("✅ Low Risk", risk_count[risk_count["predicted_risk"] == "Low"]["count"].values[0])
+            col1.metric("Total Students", len(filtered_df))
+            col2.metric("High Risk", risk_summary[risk_summary["risk_level"] == "High"]["count"].values[0])
+            col3.metric("Medium Risk", risk_summary[risk_summary["risk_level"] == "Medium"]["count"].values[0])
+            st.metric("Low Risk", risk_summary[risk_summary["risk_level"] == "Low"]["count"].values[0])
 
-            st.markdown("### 📈 Risk Distribution")
-            fig = px.pie(risk_count, names="predicted_risk", values="count", title="Risk Levels")
-            st.plotly_chart(fig, use_container_width=True)
+            pie_fig = px.pie(risk_summary, names='risk_level', values='count', title="Student Risk Levels")
+            st.plotly_chart(pie_fig, use_container_width=True)
 
-            st.markdown("### 📊 Average GPA by Risk Category")
-            bar_fig = px.bar(
-                filtered_df.groupby("predicted_risk")["gpa"].mean().reindex(["High", "Medium", "Low"]).reset_index(),
+            st.markdown("### Average GPA by Risk Category")
+            gpa_fig = px.bar(
+                filtered_df.groupby("predicted_risk")["gpa"].mean().reindex(all_risks).reset_index(),
                 x="predicted_risk", y="gpa", color="predicted_risk",
-                title="Average GPA for Each Risk Category",
-                labels={"predicted_risk": "Risk Category", "gpa": "Average GPA"},
-                color_discrete_map={"High": "red", "Medium": "orange", "Low": "green"}
+                labels={"predicted_risk": "Risk", "gpa": "Avg GPA"}
             )
-            st.plotly_chart(bar_fig, use_container_width=True)
+            st.plotly_chart(gpa_fig, use_container_width=True)
 
         with tab2:
-            st.markdown("### 📋 Student Summary Table")
-            display_cols = [
-                "student_id", "attendance_rate", "gpa", "assignment_completion", "lms_activity",
-                "predicted_risk", "risk_reason", "study_tips", "progress_percentage",
-                "expected_progress", "required_credits", "completed_credits", "schedule_status"
-            ]
-            existing_cols = [col for col in display_cols if col in filtered_df.columns]
-            summary_df = filtered_df[existing_cols]
-            st.dataframe(summary_df, use_container_width=True)
+            st.markdown("### Student Summary Table")
+            st.dataframe(filtered_df, use_container_width=True, height=400)
 
-            st.markdown("### 📚 Course-wise Performance for Selected Student")
-            selected_student = st.selectbox("Select a student to view course details:", filtered_df["student_id"].unique())
+            st.markdown("### Course-wise Performance for Selected Student")
+            selected_student = st.selectbox("Select a student:", filtered_df["student_id"].unique())
             selected_course_df = filtered_courses_df[filtered_courses_df["student_id"] == selected_student]
-            course_cols = ["course_name", "attendance_rate", "gpa", "assignment_completion", "lms_activity", "predicted_risk", "risk_reason", "study_tips"]
-            existing_course_cols = [col for col in course_cols if col in selected_course_df.columns]
-            if not selected_course_df.empty:
-                st.dataframe(selected_course_df[existing_course_cols], use_container_width=True, height=300)
-            else:
-                st.info("No course data available for this student.")
+            st.dataframe(selected_course_df, use_container_width=True, height=300)
 
-        with tab4:
-            st.markdown("### 📅 Download Reports")
-            st.download_button("Download Student Summary", data=filtered_df.to_csv(index=False),
-                               file_name="student_summary.csv", mime="text/csv")
-            st.download_button("Download Course-wise Details", data=filtered_courses_df.to_csv(index=False),
-                               file_name="course_wise_detail.csv", mime="text/csv")
+        with tab3:
+            st.download_button("Download Student Summary", data=filtered_df.to_csv(index=False), file_name="student_summary.csv")
+            st.download_button("Download Course Details", data=filtered_courses_df.to_csv(index=False), file_name="course_details.csv")
 else:
     st.info("ℹ️ Please enter your role and ID to continue.")
